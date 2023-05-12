@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace RepairBox.BL.Services
 {
-    public interface IUserRepo
+    public interface IUserServiceRepo
     {
         string Test();
     }
-    public class UserRepo : IUserRepo
+    public class UserServiceRepo : IUserServiceRepo
     {
-        public UserRepo()
+        public UserServiceRepo()
         {
 
         }

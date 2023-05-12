@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RepairBox.DAL.Entities;
 
 namespace RepairBox.DAL
 {
@@ -8,5 +9,13 @@ namespace RepairBox.DAL
         {
 
         }
+
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Role> Roles => Set<Role>();
+        public DbSet<Brand> Brands => Set<Brand>();
+        public DbSet<Model> Models => Set<Model>();
+        public DbSet<RepairableDefect> RepairableDefects => Set<RepairableDefect>();
+        public DbSet<Invoice> Invoices => Set<Invoice>();
+        public DbSet<Transaction> Transactions => Set<Transaction>();
     }
 }

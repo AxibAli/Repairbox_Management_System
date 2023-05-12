@@ -6,7 +6,8 @@ namespace RepairBox.API
     {
         public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IUserRepo, UserRepo>();
+            services.AddScoped<IUserServiceRepo, UserServiceRepo>();
+            services.AddScoped<IEmailServiceRepo, EmailServiceRepo>();
         }
     }
 }

@@ -5,12 +5,12 @@ using RepairBox.Common.Commons;
 
 namespace RepairBox.API.Controllers
 {
+    [Route(DeveloperConstants.ENDPOINT_PREFIX)]
     [ApiController]
-    [Route("api/v1/[controller]")]
     public class AuthController : ControllerBase
     {
-        private IUserRepo _userRepo;
-        public AuthController(IUserRepo userRepo)
+        private IUserServiceRepo _userRepo;
+        public AuthController(IUserServiceRepo userRepo)
         {
             _userRepo = userRepo;
         }
