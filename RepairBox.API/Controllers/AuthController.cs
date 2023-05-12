@@ -6,7 +6,7 @@ using RepairBox.Common.Commons;
 namespace RepairBox.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class AuthController : ControllerBase
     {
         private IUserRepo _userRepo;
@@ -15,7 +15,7 @@ namespace RepairBox.API.Controllers
             _userRepo = userRepo;
         }
 
-        [HttpGet]
+        [HttpGet("Test")]
         public IActionResult Test()
         {
             try
