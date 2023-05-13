@@ -25,6 +25,7 @@ namespace RepairBox.Common.Commons
     public class DeveloperConstants
     {
         public const string ENDPOINT_PREFIX = "api/v1/[controller]";
+        public const int PAGE_SIZE = 10;
     }
 
     public static class ResponseMessage

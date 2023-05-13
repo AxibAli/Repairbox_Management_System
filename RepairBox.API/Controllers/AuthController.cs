@@ -15,8 +15,8 @@ namespace RepairBox.API.Controllers
             _userRepo = userRepo;
         }
 
-        [HttpGet("Test")]
-        public IActionResult Test()
+        [HttpGet("Login")]
+        public IActionResult Login()
         {
             try
             {
