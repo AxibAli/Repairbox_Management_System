@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace RepairBox.DAL.Entities
 {
-    public class Role : Base
+    public class RepairStatus : Base
     {
-        public string Name { get; set; }
-        public User User { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

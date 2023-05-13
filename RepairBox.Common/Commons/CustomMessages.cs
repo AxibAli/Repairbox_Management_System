@@ -21,6 +21,12 @@ namespace RepairBox.Common.Commons
         public const string NEW_PASSWORD_SENT = "New password has sent to the registered email address.";
 
     }
+
+    public class DeveloperConstants
+    {
+        public const string ENDPOINT_PREFIX = "api/v1/[controller]";
+    }
+
     public static class ResponseMessage
     {
         public const bool SUCCESS = true;
