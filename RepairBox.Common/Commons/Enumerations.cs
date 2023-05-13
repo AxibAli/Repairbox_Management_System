@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace RepairBox.Common.Commons
 {
-    internal class Enumerations
+    public enum enPaymentMethod
     {
+        COD = 0,
+        Card = 1
     }
 }

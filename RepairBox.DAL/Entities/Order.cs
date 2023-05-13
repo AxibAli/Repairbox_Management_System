@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RepairBox.Common.Commons;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace RepairBox.DAL.Entities
         public string SerialNumber { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Diagnostics { get; set; } = string.Empty;
+        public enPaymentMethod PaymentMethod { get; set; }
         public bool WarrantyStatus { get; set; }
         [ForeignKey("Model")]
         public int ModelId { get; set; }
