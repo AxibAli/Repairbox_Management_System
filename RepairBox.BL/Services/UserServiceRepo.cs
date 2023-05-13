@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RepairBox.DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,10 @@ namespace RepairBox.BL.Services
     }
     public class UserServiceRepo : IUserServiceRepo
     {
-        public UserServiceRepo()
+        public ApplicationDBContext _context;
+        public UserServiceRepo(ApplicationDBContext context)
         {
-
+            _context = context;
         }
 
         public string Test()
