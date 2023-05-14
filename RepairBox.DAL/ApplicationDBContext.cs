@@ -14,6 +14,7 @@ namespace RepairBox.DAL
         public DbSet<Role> Roles => Set<Role>();
         public DbSet<Brand> Brands => Set<Brand>();
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderDefect> OrderDefects => Set<OrderDefect>();
         public DbSet<RepairPriority> RepairPriorities => Set<RepairPriority>();
         public DbSet<RepairStatus> RepairStatuses => Set<RepairStatus>();
         public DbSet<Setting> Settings => Set<Setting>();

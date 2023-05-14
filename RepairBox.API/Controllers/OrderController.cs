@@ -14,13 +14,12 @@ namespace RepairBox.API.Controllers
     public class OrderController : ControllerBase
     {
         private IPriorityServiceRepo _priorityRepo;
-        private readonly IStripeService _stripeRepo;
+
         private readonly IOrderServiceRepo _orderRepo;
 
-        public OrderController(IPriorityServiceRepo priorityRepo, IStripeService stripeRepo, IOrderServiceRepo orderRepo)
+        public OrderController(IPriorityServiceRepo priorityRepo, IOrderServiceRepo orderRepo)
         {
             _priorityRepo = priorityRepo;
-            _stripeRepo = stripeRepo;
             _orderRepo = orderRepo;
         }
 
@@ -38,19 +37,19 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpPost("CreateBooking")]
-        public IActionResult CreateOrder(AddOrderDTO addOrderDTO)
+        [HttpPost("CreateOrder")]
+        public IActionResult CreateOrder(AddOrderDTO model)
         {
             try
             {
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = "" });
+                _orderRepo.CreateOrder(model);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.ADDED_SUCCESSFULLY, "Order") });
             }
             catch (Exception ex)
             {
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-
 
         [HttpPost("CalculateOrderPrice")]
         public IActionResult CalculateOrderPrice(GetOrderChargesDTO model)
@@ -60,22 +59,6 @@ namespace RepairBox.API.Controllers
                 var data = _orderRepo.CalculateOrder(model);
 
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-            }
-        }
-
-
-        [HttpPost("StripePayment")]
-        public async Task<IActionResult> StripePayment()
-        {
-            try
-            {
-                var message = await _stripeRepo.CreateCharge();
-
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
             }
             catch (Exception ex)
             {

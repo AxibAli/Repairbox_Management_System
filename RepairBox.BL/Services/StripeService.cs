@@ -1,4 +1,6 @@
-﻿using Stripe;
+﻿using RepairBox.BL.DTOs.Stripe;
+using RepairBox.Common.Commons;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,7 @@ namespace RepairBox.BL.Services
 {
     public interface IStripeService
     {
-        Task<string> CreateCharge();
+        Task<StripeChargeReponseDTO> CreateCharge(StripeRequestDTO model);
     }
     public class StripeService : IStripeService
     {
@@ -27,17 +29,17 @@ namespace RepairBox.BL.Services
             _chargeService = chargeService;
         }
 
-        public async Task<string> CreateCharge()
+        public async Task<StripeChargeReponseDTO> CreateCharge(StripeRequestDTO model)
         {
             TokenCreateOptions tokenOptions = new TokenCreateOptions
             {
                 Card = new TokenCardOptions
                 {
-                    Name = "Test",
-                    Number = "4242424242424242",
-                    ExpYear = "2028",
-                    ExpMonth = "03",
-                    Cvc = "123"
+                    Name = model.Name,
+                    Number = model.CardNumber,
+                    ExpYear = model.ExpiryYear,
+                    ExpMonth = model.ExpiryMonth,
+                    Cvc = model.CVV
                 }
             };
 
@@ -47,8 +49,8 @@ namespace RepairBox.BL.Services
             // Set Customer options using
             CustomerCreateOptions customerOptions = new CustomerCreateOptions
             {
-                Name = "Test",
-                Email = "test@mailinator.com",
+                Name = model.Name,
+                Email = model.Email,
                 Source = stripeToken.Id
             };
 
@@ -61,12 +63,27 @@ namespace RepairBox.BL.Services
                 ReceiptEmail = createdCustomer.Email,
                 Description = "",
                 Currency = "usd",
-                Amount = 20 * 100
+                Amount = model.Amount
             };
 
             var createdPayment = await _chargeService.CreateAsync(paymentOptions);
 
-            return createdPayment.Status;
+            if(createdPayment.Status == enStripeChargeStatus.succeeded.ToString())
+            {
+                return new StripeChargeReponseDTO
+                {
+                    Status = enStripeChargeStatus.succeeded,
+                    StripeCustomerId = createdCustomer.Id,
+                    StripeTransactionId = createdPayment.Id
+                };
+            }
+            return new StripeChargeReponseDTO
+            {
+                Status = enStripeChargeStatus.failed,
+                StripeCustomerId = string.Empty,
+                StripeTransactionId = string.Empty
+            };
+
         }
     }
 }

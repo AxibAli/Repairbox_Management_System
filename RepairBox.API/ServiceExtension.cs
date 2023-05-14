@@ -7,6 +7,12 @@ namespace RepairBox.API
     {
         public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
+            // Stripe Services
+            services.AddScoped<TokenService>();
+            services.AddScoped<CustomerService>();
+            services.AddScoped<ChargeService>();
+
+            // Services
             services.AddScoped<IEmailServiceRepo, EmailServiceRepo>();
             services.AddScoped<IUserServiceRepo, UserServiceRepo>();
             services.AddScoped<IBrandServiceRepo, BrandServiceRepo>();
@@ -15,10 +21,6 @@ namespace RepairBox.API
             services.AddScoped<IPriorityServiceRepo, PriorityServiceRepo>();
             services.AddScoped<IStripeService, StripeService>();
             services.AddScoped<IOrderServiceRepo, OrderServiceRepo>();
-
-            services.AddScoped<TokenService>();
-            services.AddScoped<CustomerService>();
-            services.AddScoped<ChargeService>();
         }
     }
 }
