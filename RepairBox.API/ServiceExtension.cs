@@ -10,6 +10,7 @@ namespace RepairBox.API
             services.AddScoped<IUserServiceRepo, UserServiceRepo>();
             services.AddScoped<IBrandServiceRepo, BrandServiceRepo>();
             services.AddScoped<IModelServiceRepo, ModelServiceRepo>();
+            services.AddScoped<IRepairDefectServiceRepo, RepairDefectServiceRepo>();
         }
     }
 }
