@@ -18,7 +18,7 @@ namespace RepairBox.BL.Services
         Task DeleteBrand(int brandId);
         GetBrandDTO? GetBrand(int brandId);
         PaginationModel GetBrands(string query, int pageNo);
-        List<SelectListItem> GetBrands();
+        IQueryable<SelectListItem> GetBrands();
     }
     public class BrandServiceRepo : IBrandServiceRepo
     {
