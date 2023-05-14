@@ -19,5 +19,7 @@ namespace RepairBox.Common.Helpers
             decimal.TryParse(value, out decimal output);
             return output;
         }
+
+        
     }
 }

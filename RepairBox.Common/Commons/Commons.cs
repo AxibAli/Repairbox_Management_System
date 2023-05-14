@@ -8,10 +8,10 @@ namespace RepairBox.Common.Commons
 {
     public class CustomMessage
     {
-        //Admin
-        public const string ADMIN_EXIST = "Admin already exist.";
-        public const string ADMIN_ADDED = "Admin register successfully.";
-        public const string ADMIN_UPDATED = "Admin updated successfully.";
+
+        public const string ADDED_SUCCESSFULLY = "{0} added successfully.";
+        public const string DELETED_SUCCESSFULLY = "{0} deleted successfully.";
+        public const string UPDATED_SUCCESSFULLY = "{0} updated successfully.";
 
         // Auth
         public const string USER_NOT_EXIST = "User not exist.";
@@ -25,6 +25,7 @@ namespace RepairBox.Common.Commons
     public class DeveloperConstants
     {
         public const string ENDPOINT_PREFIX = "api/v1/[controller]";
+        public const int PAGE_SIZE = 10;
     }
 
     public static class ResponseMessage

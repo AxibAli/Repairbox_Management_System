@@ -8,7 +8,7 @@ namespace RepairBox.Common.Commons
 {
     public enum enPaymentMethod
     {
-        COD = 0,
+        CoD = 0,
         Card = 1
     }
 }
