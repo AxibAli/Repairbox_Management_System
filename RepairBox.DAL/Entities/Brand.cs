@@ -9,7 +9,6 @@ namespace RepairBox.DAL.Entities
     public class Brand : Base
     {
         public string Name { get; set; } = string.Empty;
-        public ICollection<Order> Orders { get; set; }
         public ICollection<Model> Models { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepairBox.DAL;
 
@@ -11,9 +12,10 @@ using RepairBox.DAL;
 namespace RepairBox.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230514071836_Minor changes")]
+    partial class Minorchanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,6 +119,9 @@ namespace RepairBox.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -151,6 +156,9 @@ namespace RepairBox.DAL.Migrations
                     b.Property<int>("PriorityId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RepairableDefectId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SerialNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -166,7 +174,11 @@ namespace RepairBox.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId");
+
                     b.HasIndex("ModelId");
+
+                    b.HasIndex("RepairableDefectId");
 
                     b.ToTable("Orders");
                 });
@@ -370,19 +382,11 @@ namespace RepairBox.DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("StripeCustomerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StripeTransactionId")
                         .IsRequired()
@@ -444,11 +448,19 @@ namespace RepairBox.DAL.Migrations
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Order", b =>
                 {
+                    b.HasOne("RepairBox.DAL.Entities.Brand", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("BrandId");
+
                     b.HasOne("RepairBox.DAL.Entities.Model", null)
                         .WithMany("Orders")
                         .HasForeignKey("ModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("RepairBox.DAL.Entities.RepairableDefect", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("RepairableDefectId");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.OrderDefect", b =>
@@ -481,6 +493,8 @@ namespace RepairBox.DAL.Migrations
             modelBuilder.Entity("RepairBox.DAL.Entities.Brand", b =>
                 {
                     b.Navigation("Models");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Model", b =>
@@ -493,6 +507,11 @@ namespace RepairBox.DAL.Migrations
             modelBuilder.Entity("RepairBox.DAL.Entities.Order", b =>
                 {
                     b.Navigation("OrderDefects");
+                });
+
+            modelBuilder.Entity("RepairBox.DAL.Entities.RepairableDefect", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Role", b =>

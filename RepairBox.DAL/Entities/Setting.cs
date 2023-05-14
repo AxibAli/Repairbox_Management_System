@@ -8,6 +8,6 @@ namespace RepairBox.DAL.Entities
 {
     public class Setting : Base
     {
-        public decimal Tax { get; set; }
+        public decimal Tax { get; set; } = 0;
     }
 }

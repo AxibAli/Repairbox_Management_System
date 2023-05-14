@@ -22,7 +22,8 @@ namespace RepairBox.DAL.Entities
         public int ModelId { get; set; }
         [ForeignKey("User")]
         public int TechnicianId { get; set; }
-        public int PriorityId { get; set; }        public int StatusId { get; set; }
+        public int PriorityId { get; set; }        
+        public int StatusId { get; set; }
         public ICollection<OrderDefect> OrderDefects { get; set; }
     }
 }

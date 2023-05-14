@@ -15,7 +15,6 @@ namespace RepairBox.DAL.Entities
         public decimal Price { get; set; }
         [ForeignKey("Model")]
         public int ModelId { get; set; }
-        public ICollection<Order> Orders { get; set; }
     }
 }
  
