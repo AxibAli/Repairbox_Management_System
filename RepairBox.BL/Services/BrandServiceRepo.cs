@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace RepairBox.BL.Services
 {
@@ -17,6 +18,7 @@ namespace RepairBox.BL.Services
         Task DeleteBrand(int brandId);
         GetBrandDTO? GetBrand(int brandId);
         PaginationModel GetBrands(string query, int pageNo);
+        List<SelectListItem> GetBrands();
     }
     public class BrandServiceRepo : IBrandServiceRepo
     {
@@ -67,6 +69,17 @@ namespace RepairBox.BL.Services
                 CurrentPage = pageNo,
                 Data = brandList
             };
+        }
+
+        public IQueryable<SelectListItem> GetBrands()
+        {
+            var brands = _context.Brands.Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = b.Name
+            });
+
+            return brands;
         }
 
         public async Task UpdateBrand(int brandId, string Name)
