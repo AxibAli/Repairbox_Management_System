@@ -20,7 +20,6 @@ namespace RepairBox.DAL.Entities
         public bool WarrantyStatus { get; set; }
         [ForeignKey("Model")]
         public int ModelId { get; set; }
-        [ForeignKey("User")]
         public int TechnicianId { get; set; }
         public int PriorityId { get; set; }        
         public int StatusId { get; set; }

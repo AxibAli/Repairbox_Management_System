@@ -53,7 +53,6 @@ namespace RepairBox.BL.Services
                 TotalAmount = totalAmount
             };
         }
-
         public async Task CreateOrder(AddOrderDTO model)
         {
             using var transaction = _context.Database.BeginTransaction();
@@ -106,7 +105,6 @@ namespace RepairBox.BL.Services
             }
         }
 
-
         // Private Method
         private void AddTransaction(Transaction transaction)
         {
@@ -147,7 +145,7 @@ namespace RepairBox.BL.Services
                     PaymentMethod = model.PaymentMethod,
                     ModelId = model.ModelId,
                     PriorityId = model.PriorityId,
-                    StatusId = 1,
+                    StatusId = 4,
                     WarrantyStatus = model.WarrantyStatus,
                     SerialNumber = model.SerialNumber,
                     IsActive = true,
