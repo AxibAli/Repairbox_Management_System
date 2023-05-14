@@ -11,4 +11,11 @@ namespace RepairBox.Common.Commons
         CoD = 0,
         Card = 1
     }
+
+    public enum enStripeChargeStatus
+    {
+        succeeded, 
+        failed, 
+        pending
+    }
 }
