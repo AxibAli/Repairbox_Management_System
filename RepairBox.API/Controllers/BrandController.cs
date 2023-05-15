@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic.FileIO;
 using RepairBox.API.Models;
 using RepairBox.BL.DTOs.Model;
 using RepairBox.BL.DTOs.RepairDefect;
 using RepairBox.BL.Services;
 using RepairBox.Common.Commons;
+using System.Text;
 
 namespace RepairBox.API.Controllers
 {
@@ -50,7 +52,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpPost("DeleteBrand")]
         public async Task<IActionResult> DeleteBrand(int Id)
         {
@@ -92,7 +94,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpGet("GetBrandsforDropdown")]
         public IActionResult GetBrandsforDropdown()
         {
@@ -111,13 +113,13 @@ namespace RepairBox.API.Controllers
         #region Model
 
         [HttpPost("AddModels")]
-        public async Task<IActionResult> AddModels()
+        public async Task<IActionResult> AddModels(IFormFile file, int brandId)
         {
             try
             {
-                List<AddModelDTO> models = new List<AddModelDTO>();
-                await _modelRepo.AddModels(models);
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "Model") });
+                var datum = (List<AddModelDTO>)readCSV(file, new AddModelDTO());
+                await _modelRepo.AddModels(datum, brandId);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "Model(s)") });
             }
             catch (Exception ex)
             {
@@ -137,7 +139,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpPost("DeleteModel")]
         public async Task<IActionResult> DeleteModel(int Id)
         {
@@ -179,9 +181,9 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpGet("GetBrandModels")]
-        public IActionResult GetBrandModels(string? query,int brandId, int pageNo = 1)
+        public IActionResult GetBrandModels(string? query, int brandId, int pageNo = 1)
         {
             try
             {
@@ -193,7 +195,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpGet("GetModelsforDropdown")]
         public IActionResult GetModelsforDropdown()
         {
@@ -208,17 +210,16 @@ namespace RepairBox.API.Controllers
             }
         }
         #endregion
-        
-        #region Defect
 
+        #region Defect
         [HttpPost("AddDefects")]
-        public async Task<IActionResult> AddDefects()
+        public async Task<IActionResult> AddDefects(IFormFile file, int modelId)
         {
             try
             {
-                List<AddDefectDTO> models = new List<AddDefectDTO>();
-                await _defectRepo.AddDefects(models);
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "Defect") });
+                var datum = (List<AddDefectDTO>)readCSV(file, new AddDefectDTO());
+                await _defectRepo.AddDefects(datum, modelId);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "Defect(s)") });
             }
             catch (Exception ex)
             {
@@ -238,7 +239,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpPost("DeleteDefect")]
         public async Task<IActionResult> DeleteDefect(int Id)
         {
@@ -280,9 +281,9 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpGet("GetModelDefects")]
-        public IActionResult GetModelDefects(string? query,int modelId, int pageNo = 1)
+        public IActionResult GetModelDefects(string? query, int modelId, int pageNo = 1)
         {
             try
             {
@@ -294,7 +295,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-        
+
         [HttpGet("GetDefectsforDropdown")]
         public IActionResult GetDefectsforDropdown()
         {
@@ -310,5 +311,53 @@ namespace RepairBox.API.Controllers
         }
         #endregion
 
+        // Read CSV
+        private object? readCSV(IFormFile csvFile, object Data)
+        {
+            List<AddModelDTO> models = new List<AddModelDTO>();
+            List<AddDefectDTO> defects = new List<AddDefectDTO>();
+            try
+            {
+                using (TextFieldParser parser = new TextFieldParser(csvFile.OpenReadStream(), Encoding.UTF8))
+                {
+                    parser.TextFieldType = FieldType.Delimited;
+                    parser.SetDelimiters(",");
+
+                    while (!parser.EndOfData)
+                    {
+                        string[] fields = parser.ReadFields();
+                        if (Data.GetType() == typeof(AddModelDTO))
+                            models.Add(new AddModelDTO
+                            {
+                                Name = fields[0],
+                                Model = fields[1]
+                            });
+                        else if (Data.GetType() == typeof(AddDefectDTO))
+                            defects.Add(new AddDefectDTO
+                            {
+                                Title = fields[0],
+                                Price = fields[1],
+                                Cost = fields[2],
+                                Time = fields[3]
+                            });
+                    }
+                }
+                if (Data.GetType() == typeof(AddModelDTO))
+                {
+                    models.Remove(models.FirstOrDefault());
+                    return models;
+                }
+                else if (Data.GetType() == typeof(AddDefectDTO))
+                {
+                    defects.Remove(defects.FirstOrDefault());
+                    return defects;
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                throw new Exception("There is a problem in csv file.");
+            }
+        }
     }
 }
