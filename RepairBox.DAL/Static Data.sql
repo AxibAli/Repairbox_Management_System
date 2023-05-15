@@ -44,7 +44,6 @@ VALUES ('Delivery','2023-05-14',1, 0)
 INSERT INTO [dbo].[RepairStatuses]([Name],[CreatedAt],[IsActive],[IsDeleted]) 
 VALUES ('Resolved','2023-05-14',1, 0) 
 
-
 INSERT INTO [dbo].[RepairStatuses]([Name],[CreatedAt],[IsActive],[IsDeleted]) 
 VALUES ('Pending','2023-05-14',1, 0)
 
