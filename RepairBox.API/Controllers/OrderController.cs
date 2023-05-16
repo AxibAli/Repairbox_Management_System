@@ -5,7 +5,9 @@ using RepairBox.BL.DTOs.Order;
 using RepairBox.BL.ServiceModels.Order;
 using RepairBox.BL.Services;
 using RepairBox.Common.Commons;
+using RestSharp;
 using Stripe;
+using System.Text;
 
 namespace RepairBox.API.Controllers
 {
@@ -50,6 +52,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
+
 
         [HttpPost("CalculateOrderPrice")]
         public IActionResult CalculateOrderPrice(GetOrderChargesDTO model)

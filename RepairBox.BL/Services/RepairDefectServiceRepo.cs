@@ -101,9 +101,9 @@ namespace RepairBox.BL.Services
         public PaginationModel GetDefects(string query, int pageNo)
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
-            var defectQuery = _context.Brands.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.Name.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
-            defects.ForEach(brand => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(brand)));
+            var defectQuery = _context.RepairableDefects.AsQueryable();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
             {
@@ -116,9 +116,9 @@ namespace RepairBox.BL.Services
         public PaginationModel GetDefectsByModelId(string query, int pageNo, int modelId)
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
-            var defectQuery = _context.Brands.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.Name.StartsWith(query) : true && d.Id == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
-            defects.ForEach(brand => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(brand)));
+            var defectQuery = _context.RepairableDefects.AsQueryable();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true && d.ModelId == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
             {

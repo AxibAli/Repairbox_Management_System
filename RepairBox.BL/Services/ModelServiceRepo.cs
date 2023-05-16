@@ -127,7 +127,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true && b.Id == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
