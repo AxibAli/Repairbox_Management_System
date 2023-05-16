@@ -8,5 +8,6 @@ namespace RepairBox.DAL.Entities
 {
     public class Invoice : Base
     {
+        public int InvoiceId { get; set; }
     }
 }
