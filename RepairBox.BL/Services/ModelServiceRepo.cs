@@ -102,7 +102,7 @@ namespace RepairBox.BL.Services
             var models = _context.Models.Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
-                Text = b.Name
+                Text = b.ModelName
             });
 
             return models;
@@ -112,7 +112,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.ModelName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
@@ -127,7 +127,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.ModelName.StartsWith(query) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel

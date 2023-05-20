@@ -25,7 +25,7 @@ namespace RepairBox.API.Controllers
             _orderRepo = orderRepo;
         }
 
-        [HttpPost("GetPriorities")]
+        [HttpGet("GetPriorities")]
         public IActionResult GetPriorities()
         {
             try
