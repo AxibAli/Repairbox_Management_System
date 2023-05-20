@@ -98,10 +98,10 @@ namespace RepairBox.BL.Services
                 }
                 transaction.Commit();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
                 transaction.Rollback();
+                throw new Exception(ex.Message);
             }
         }
 

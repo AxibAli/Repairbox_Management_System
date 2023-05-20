@@ -8,8 +8,7 @@ namespace RepairBox.BL.DTOs.Model
 {
     public class AddModelDTO
     {
-        public int BrandId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string ModelName { get; set; } = string.Empty;
+        public string Name { get; set; }
+        public string Model { get; set; }
     }
 }

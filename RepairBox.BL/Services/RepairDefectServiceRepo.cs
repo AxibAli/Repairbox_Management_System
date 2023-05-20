@@ -2,6 +2,7 @@
 using RepairBox.Common.Commons;
 using RepairBox.Common.Helpers;
 using RepairBox.DAL;
+using RepairBox.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace RepairBox.BL.Services
 {
     public interface IRepairDefectServiceRepo
     {
-        Task AddDefects(List<AddDefectDTO> datum);
+        Task AddDefects(List<AddDefectDTO> datum, int modelId);
         Task DeleteDefect(int defectId);
         Task UpdateDefect(UpdateDefectDTO data);
         IQueryable<SelectListItem> GetDefects();
@@ -30,9 +31,48 @@ namespace RepairBox.BL.Services
         {
             _context = context;
         }
-        public Task AddDefects(List<AddDefectDTO> datum)
+        public async Task AddDefects(List<AddDefectDTO> datum, int modelId)
         {
-            throw new NotImplementedException();
+            List<RepairableDefect> defects = new List<RepairableDefect>();
+            foreach (var data in datum)
+            {
+                defects.Add(new RepairableDefect
+                {
+                    DefectName = data.Title,
+                    Cost = ConversionHelper.ConvertToDecimal(data.Cost),
+                    Price = ConversionHelper.ConvertToDecimal(data.Price),
+                    RepairTime = data.Time,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true,
+                    IsDeleted = false,
+                    ModelId = modelId
+                });
+            }
+
+            var defectNames = defects.Select(x => x.DefectName).ToList();
+            int index = 0;
+            foreach (var defectName in defectNames)
+            {
+                var d = IGetDefects().FirstOrDefault(d => d.DefectName.Contains(defectName));
+                if (d != null)
+                {
+                    defects.RemoveAt(index);
+                    index = 0;
+                }
+                else
+                    index++;
+            }
+
+            if (defects.Count > 0)
+            {
+                await _context.RepairableDefects.AddRangeAsync(defects);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private IQueryable<RepairableDefect> IGetDefects()
+        {
+            return _context.RepairableDefects.AsQueryable();
         }
 
         public async Task DeleteDefect(int defectId)
@@ -61,9 +101,9 @@ namespace RepairBox.BL.Services
         public PaginationModel GetDefects(string query, int pageNo)
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
-            var defectQuery = _context.Brands.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.Name.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
-            defects.ForEach(brand => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(brand)));
+            var defectQuery = _context.RepairableDefects.AsQueryable();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
             {
@@ -76,9 +116,9 @@ namespace RepairBox.BL.Services
         public PaginationModel GetDefectsByModelId(string query, int pageNo, int modelId)
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
-            var defectQuery = _context.Brands.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.Name.StartsWith(query) : true && d.Id == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
-            defects.ForEach(brand => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(brand)));
+            var defectQuery = _context.RepairableDefects.AsQueryable();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true && d.ModelId == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
             {

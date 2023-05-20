@@ -3,6 +3,7 @@ using RepairBox.BL.DTOs.Model;
 using RepairBox.Common.Commons;
 using RepairBox.Common.Helpers;
 using RepairBox.DAL;
+using RepairBox.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace RepairBox.BL.Services
 {
     public interface IModelServiceRepo
     {
-        Task AddModels(List<AddModelDTO> datum);
+        Task AddModels(List<AddModelDTO> datum, int brandId);
         Task DeleteModel(int brandId);
         Task UpdateModel(UpdateModelDTO data);
         IQueryable<SelectListItem> GetModels();
@@ -31,9 +32,45 @@ namespace RepairBox.BL.Services
             _context = context;
         }
 
-        public Task AddModels(List<AddModelDTO> datum)
+        public async Task AddModels(List<AddModelDTO> datum, int brandId)
         {
-            throw new NotImplementedException();
+            List<Model> models = new List<Model>();
+            foreach (var data in datum)
+            {
+                models.Add(new Model
+                {
+                    Name = data.Name,
+                    ModelName = data.Model,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true,
+                    IsDeleted = false,
+                    BrandId = brandId
+                });
+            }
+            var modelNames = models.Select(x => x.ModelName).ToList();
+            int index = 0;
+            foreach (var modelName in modelNames)
+            {
+                var d = IGetModels().FirstOrDefault(d => d.ModelName.Contains(modelName));
+                if (d != null)
+                {
+                    models.RemoveAt(index);
+                    index = 0;
+                }
+                else
+                    index++;
+            }
+
+            if (models.Count > 0)
+            {
+                await _context.Models.AddRangeAsync(models);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private IQueryable<Model> IGetModels()
+        {
+            return _context.Models.AsQueryable();
         }
 
         public async Task DeleteModel(int modelId)
@@ -46,15 +83,13 @@ namespace RepairBox.BL.Services
         public GetModelDTO? GetModel(int modelId)
         {
             var model = (from m in _context.Models
-                     join b in _context.Brands
-                     on m.BrandId equals b.Id
-                     select new GetModelDTO
-                     {
-                         Id = m.Id,
-                         Name = m.Name,
-                         ModelName = m.ModelName,
-                         Brand = b.Name
-                     }).FirstOrDefault();
+                         select new GetModelDTO
+                         {
+                             Id = m.Id,
+                             Name = m.Name,
+                             ModelName = m.ModelName,
+                             BrandId = m.BrandId
+                         }).FirstOrDefault();
             if (model != null)
             {
                 return model;
@@ -76,9 +111,9 @@ namespace RepairBox.BL.Services
         public PaginationModel GetModels(string query, int pageNo)
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
-            var modelQuery = _context.Brands.AsQueryable();
+            var modelQuery = _context.Models.AsQueryable();
             var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
-            models.ForEach(brand => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(brand)));
+            models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
             {
@@ -87,13 +122,13 @@ namespace RepairBox.BL.Services
                 Data = modelList
             };
         }
-        
+
         public PaginationModel GetModelsByBrandId(string query, int pageNo, int brandId)
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
-            var modelQuery = _context.Brands.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true && b.Id == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
-            models.ForEach(brand => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(brand)));
+            var modelQuery = _context.Models.AsQueryable();
+            var models = modelQuery.Where(b => query != null ? b.Name.StartsWith(query) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
             {
