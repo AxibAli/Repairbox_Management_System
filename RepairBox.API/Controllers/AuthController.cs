@@ -28,5 +28,33 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
+
+        [HttpGet("/Payment")]
+        public IActionResult Payment()
+        {
+            try
+            {
+                var message = _userRepo.Test();
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        
+        [HttpGet("/Order")]
+        public IActionResult Order()
+        {
+            try
+            {
+                var message = _userRepo.Test();
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -24,18 +24,20 @@ namespace RepairBox.BL.Services
     {
         public ApplicationDBContext _context;
         private int pageSize = DeveloperConstants.PAGE_SIZE;
+
         public BrandServiceRepo(ApplicationDBContext context)
         {
             _context = context;
         }
+
         public async Task AddBrand(string Name)
         {
-            var brand = await _context.Brands.AddAsync(new DAL.Entities.Brand
+            await _context.Brands.AddAsync(new DAL.Entities.Brand
             {
                 Name = Name,
                 CreatedAt = DateTime.Now,
-                IsDeleted = false,
                 IsActive = true,
+                IsDeleted = false
             }); 
 
             await _context.SaveChangesAsync();
