@@ -1,6 +1,8 @@
 ﻿using RepairBox.BL.DTOs.Priority;
+using RepairBox.BL.DTOs.Status;
 using RepairBox.Common.Commons;
 using RepairBox.DAL;
+using RepairBox.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,11 @@ namespace RepairBox.BL.Services
 {
     public interface IPriorityServiceRepo
     {
-        List<GetPriorityDTO>? GetPriorities(); 
+        List<GetPriorityDTO>? GetPriorities();
+        GetPriorityDTO? GetPriorityById(int id);
+        void AddPriority(AddPriorityDTO priorityDTO);
+        void UpdatePriority(UpdatePriorityDTO priorityDTO);
+        bool DeletePriority(int id);
     }
 
     public class PriorityServiceRepo : IPriorityServiceRepo
@@ -33,6 +39,59 @@ namespace RepairBox.BL.Services
                 return priorities;
             }
             return null;
+        }
+
+        public GetPriorityDTO? GetPriorityById(int id)
+        {
+            var priority = _context.RepairPriorities.FirstOrDefault(p => p.Id == id);
+            if (priority != null)
+            {
+                var dbRequest = Omu.ValueInjecter.Mapper.Map<GetPriorityDTO>(priority);
+                return dbRequest;
+            }
+            return null;
+        }
+
+        public void AddPriority(AddPriorityDTO priorityDTO)
+        {
+            var priority = new RepairPriority
+            {
+                Name = priorityDTO.Name,
+                ProcessCharges = priorityDTO.ProcessCharges
+            };
+
+            _context.RepairPriorities.Add(priority);
+            _context.SaveChanges();
+
+            return ;
+        }
+
+        public void UpdatePriority(UpdatePriorityDTO priorityDTO)
+        {
+            var priority = _context.RepairPriorities.FirstOrDefault(p => p.Id == priorityDTO.Id);
+            if(priority != null)
+            {
+                priority.Name = priorityDTO.Name;
+                priority.ProcessCharges = priorityDTO.ProcessCharges;
+
+                _context.SaveChanges();
+            }
+
+            return ;
+        }
+
+        public bool DeletePriority(int id)
+        {
+            var priority = _context.RepairPriorities.FirstOrDefault(p => p.Id == id);
+            if(priority != null)
+            {
+                _context.RepairPriorities.Remove(priority);
+                _context.SaveChanges();
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
