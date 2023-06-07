@@ -22,5 +22,8 @@ namespace RepairBox.DAL
         public DbSet<RepairableDefect> RepairableDefects => Set<RepairableDefect>();
         public DbSet<Invoice> Invoices => Set<Invoice>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
+        public DbSet<CustomerInfo> CustomerInfos => Set<CustomerInfo>();
+        public DbSet<CustomerIdentities> CustomerIdentities => Set<CustomerIdentities>();
+        public DbSet<DeviceInfo> DeviceInfos => Set<DeviceInfo>();
     }
 }
