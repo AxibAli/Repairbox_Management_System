@@ -11,6 +11,7 @@ namespace RepairBox.Common.Commons
         public const string ADDED_SUCCESSFULLY = "{0} created successfully.";
         public const string DELETED_SUCCESSFULLY = "{0} deleted successfully.";
         public const string UPDATED_SUCCESSFULLY = "{0} updated successfully.";
+        public const string NOT_FOUND = "{0} not found.";
 
         // Auth
         public const string USER_NOT_EXIST = "User not exist.";
