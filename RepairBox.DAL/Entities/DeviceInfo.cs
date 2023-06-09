@@ -16,6 +16,5 @@ namespace RepairBox.DAL.Entities
         public string SerialNumber { get; set; } = string.Empty;
         public decimal Cost { get; set; }
         public decimal Price { get; set; }
-        public virtual CustomerInfo CustomerInfo { get; set; }
     }
 }

@@ -11,8 +11,6 @@ namespace RepairBox.DAL.Entities
     {
         [ForeignKey("CustomerInfo")]
         public int CustomerInfoId { get; set; }
-        public byte[] Image1 { get; set; }
-        public byte[] Image2 { get; set; }
-        public virtual CustomerInfo CustomerInfo { get; set; }
+        public string Image { get; set; } = string.Empty;
     }
 }

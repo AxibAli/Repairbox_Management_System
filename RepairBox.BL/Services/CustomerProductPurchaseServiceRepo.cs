@@ -15,7 +15,7 @@ namespace RepairBox.BL.Services
 {
     public interface ICustomerProductPurchaseServiceRepo
     {
-        Task AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
+        void AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
     }
     public class CustomerProductPurchaseServiceRepo : ICustomerProductPurchaseServiceRepo
     {
@@ -24,28 +24,33 @@ namespace RepairBox.BL.Services
         {
             _context = context;
         }
-        public async Task AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO)
+        public void AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO)
         {
             var customerInfo = new CustomerInfo
             {
                 Name = customerInfoDTO.Name,
                 Email = customerInfoDTO.Email,
                 PhoneNumber = customerInfoDTO.PhoneNumber,
-                Address = customerInfoDTO.Address
+                Address = customerInfoDTO.Address,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false
             };
 
-            await _context.CustomerInfos.AddAsync(customerInfo);
-            await _context.SaveChangesAsync();
+            _context.CustomerInfos.Add(customerInfo);
+            _context.SaveChanges();
 
             var customerIdentities = new CustomerIdentities
             {
                 CustomerInfoId = customerInfo.Id,
-                Image1 = customerIdentitiesDTO.Image1,
-                Image2 = customerIdentitiesDTO.Image2
+                Image = customerIdentitiesDTO.Image,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false
             };
 
-            await _context.CustomerIdentities.AddAsync(customerIdentities);
-            await _context.SaveChangesAsync();
+            _context.CustomerIdentities.Add(customerIdentities);
+            _context.SaveChanges();
 
             var deviceInfo = new DeviceInfo
             {
@@ -54,11 +59,14 @@ namespace RepairBox.BL.Services
                 IMEI = deviceInfoDTO.IMEI,
                 SerialNumber = deviceInfoDTO.SerialNumber,
                 Cost = deviceInfoDTO.Cost,
-                Price = deviceInfoDTO.Price
+                Price = deviceInfoDTO.Price,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false
             };
 
-            await _context.DeviceInfos.AddAsync(deviceInfo);
-            await _context.SaveChangesAsync();
+            _context.DeviceInfos.Add(deviceInfo);
+            _context.SaveChanges();
         }
     }
 }

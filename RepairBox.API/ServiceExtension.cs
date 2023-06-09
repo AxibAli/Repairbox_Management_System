@@ -21,6 +21,7 @@ namespace RepairBox.API
             services.AddScoped<IPriorityServiceRepo, PriorityServiceRepo>();
             services.AddScoped<IStripeService, StripeService>();
             services.AddScoped<IOrderServiceRepo, OrderServiceRepo>();
+            services.AddScoped<ICustomerProductPurchaseServiceRepo, CustomerProductPurchaseServiceRepo>();
         }
     }
 }

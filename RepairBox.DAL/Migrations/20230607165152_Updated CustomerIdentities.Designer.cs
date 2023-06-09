@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepairBox.DAL;
 
@@ -11,9 +12,10 @@ using RepairBox.DAL;
 namespace RepairBox.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230607165152_Updated CustomerIdentities")]
+    partial class UpdatedCustomerIdentities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -553,7 +555,7 @@ namespace RepairBox.DAL.Migrations
             modelBuilder.Entity("RepairBox.DAL.Entities.CustomerIdentities", b =>
                 {
                     b.HasOne("RepairBox.DAL.Entities.CustomerInfo", "CustomerInfo")
-                        .WithMany("CustomerIdentities")
+                        .WithMany()
                         .HasForeignKey("CustomerInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -564,7 +566,7 @@ namespace RepairBox.DAL.Migrations
             modelBuilder.Entity("RepairBox.DAL.Entities.DeviceInfo", b =>
                 {
                     b.HasOne("RepairBox.DAL.Entities.CustomerInfo", "CustomerInfo")
-                        .WithMany("DeviceInfos")
+                        .WithMany()
                         .HasForeignKey("CustomerInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -620,13 +622,6 @@ namespace RepairBox.DAL.Migrations
             modelBuilder.Entity("RepairBox.DAL.Entities.Brand", b =>
                 {
                     b.Navigation("Models");
-                });
-
-            modelBuilder.Entity("RepairBox.DAL.Entities.CustomerInfo", b =>
-                {
-                    b.Navigation("CustomerIdentities");
-
-                    b.Navigation("DeviceInfos");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Model", b =>

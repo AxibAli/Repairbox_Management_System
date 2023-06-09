@@ -10,7 +10,6 @@ namespace RepairBox.BL.DTOs.CustomerIdentities
     {
         public int Id { get; set; }
         public int CustomerInfoId { get; set; }
-        public byte[] Image1 { get; set; }
-        public byte[] Image2 { get; set; }
+        public string Image { get; set; }
     }
 }
