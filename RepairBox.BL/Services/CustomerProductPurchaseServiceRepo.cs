@@ -20,7 +20,8 @@ namespace RepairBox.BL.Services
         public GetInvoiceDataDTO? GetPurchaseFromCustomerInvoice(long id);
         public int AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
         public void AddPurchaseFromCustomerInvoice(AddPurchaseFromCustomerInvoiceDTO purchaseFromCustomerInvoiceDTO);
-        
+        public bool DeletePurchaseFromCustomer(long id);
+        public GetPurchaseFromCustomerInvoiceDTO? UpdatePurchaseFromCustomer(UpdateCustomerInfoDTO customerInfoDTO, UpdateCustomerIdentitiesDTO customerIdentitiesDTO, UpdateDeviceInfoDTO deviceInfoDTO);
     }
     public class CustomerProductPurchaseServiceRepo : ICustomerProductPurchaseServiceRepo
     {
@@ -108,6 +109,59 @@ namespace RepairBox.BL.Services
 
             _context.PurchaseFromCustomerInvoices.Add(purchaseFromCustomerInvoice);
             _context.SaveChanges();
+        }
+        public bool DeletePurchaseFromCustomer(long id)
+        {
+            var invoice = _context.PurchaseFromCustomerInvoices.FirstOrDefault(i => i.invoiceId == id);
+            
+            if(invoice == null) { return false; }
+
+            invoice.IsDeleted = true;
+            invoice.IsActive = false;
+
+            var deviceInfo = _context.DeviceInfos.FirstOrDefault(d => d.CustomerInfoId == invoice.CustomerInfoId);
+            deviceInfo.IsDeleted = true;
+            deviceInfo.IsActive = false;
+
+            var customerIdentities = _context.CustomerIdentities.FirstOrDefault(ci => ci.CustomerInfoId == invoice.CustomerInfoId);
+            customerIdentities.IsDeleted = true;
+            customerIdentities.IsActive = false;
+
+            var customerInfo = _context.CustomerInfos.FirstOrDefault(c => c.Id == invoice.CustomerInfoId);
+            customerInfo.IsDeleted = true;
+            customerInfo.IsActive = false;
+
+            _context.SaveChanges();
+            return true;
+        }
+        public GetPurchaseFromCustomerInvoiceDTO? UpdatePurchaseFromCustomer(UpdateCustomerInfoDTO customerInfoDTO, UpdateCustomerIdentitiesDTO customerIdentitiesDTO, UpdateDeviceInfoDTO deviceInfoDTO)
+        {
+            var invoice = _context.PurchaseFromCustomerInvoices.FirstOrDefault(i => i.CustomerInfoId == customerInfoDTO.Id);
+
+            if (invoice == null) { return null; }
+
+            var customerInfo = _context.CustomerInfos.FirstOrDefault(c => c.Id == customerInfoDTO.Id);
+
+            customerInfo.Name = customerInfoDTO.Name;
+            customerInfo.Email = customerInfoDTO.Email;
+            customerInfo.PhoneNumber = customerInfoDTO.PhoneNumber;
+            customerInfo.Address = customerInfoDTO.Address;
+
+            var customerIdentities = _context.CustomerIdentities.FirstOrDefault(ci => ci.CustomerInfoId == customerInfoDTO.Id);
+
+            customerIdentities.Image = customerIdentitiesDTO.Image;
+
+            var deviceInfo = _context.DeviceInfos.FirstOrDefault(d => d.CustomerInfoId == customerInfoDTO.Id);
+
+            deviceInfo.DeviceNameModel = deviceInfoDTO.DeviceNameModel;
+            deviceInfo.IMEI = deviceInfoDTO.IMEI;
+            deviceInfo.SerialNumber = deviceInfoDTO.SerialNumber;
+            deviceInfo.Cost = deviceInfoDTO.Cost;
+            deviceInfo.Price = deviceInfoDTO.Price;
+
+            _context.SaveChanges();
+
+            return Omu.ValueInjecter.Mapper.Map<GetPurchaseFromCustomerInvoiceDTO>(invoice);
         }
     }
 }

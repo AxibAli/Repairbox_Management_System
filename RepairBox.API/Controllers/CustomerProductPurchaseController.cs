@@ -4,12 +4,12 @@ using RepairBox.BL.DTOs.CustomerIdentities;
 using RepairBox.BL.DTOs.CustomerInfo;
 using RepairBox.BL.DTOs.DeviceInfo;
 using RepairBox.BL.DTOs.CustomerProductPurchase;
+using RepairBox.BL.DTOs.PurchaseFromCustomerInvoiceDTOs;
 using RepairBox.BL.Services;
 using RepairBox.Common.Commons;
 using System.Web;
 using IronBarCode;
 using System.Text;
-using RepairBox.BL.DTOs.PurchaseFromCustomerInvoiceDTOs;
 
 namespace RepairBox.API.Controllers
 {
@@ -80,6 +80,59 @@ namespace RepairBox.API.Controllers
                 _customerProductPurchaseRepo.AddPurchaseFromCustomerInvoice(purchaseFromCustomerInvoiceDTO);
 
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = invoiceId.ToString(), Message = String.Format(CustomMessage.ADDED_SUCCESSFULLY, "Customer Product Purchase") });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+        [HttpGet("DeletePurchaseFromCustomer")]
+        public IActionResult DeletePurchaseFromCustomer(long id)
+        {
+            try
+            {
+                var deleted = _customerProductPurchaseRepo.DeletePurchaseFromCustomer(id);
+                if (deleted)
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.DELETED_SUCCESSFULLY, "Purchase from Customer") });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.NOT_FOUND, "Purchase from Customer") });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+        [HttpPost("UpdatePurchaseFromCustomer")]
+        public IActionResult UpdatePurchaseFromCustomer(UpdatePurchaseFromCustomerDTO updatePurchaseFromCustomer)
+        {
+            UpdateCustomerInfoDTO customerInfo = updatePurchaseFromCustomer.CustomerInfo;
+            UpdateCustomerIdentitiesDTO customerIdentities = updatePurchaseFromCustomer.CustomerIdentities;
+            UpdateDeviceInfoDTO deviceInfo = updatePurchaseFromCustomer.DeviceInfo;
+
+            try
+            {
+                var purchaseFromCustomerInvoice = _customerProductPurchaseRepo.UpdatePurchaseFromCustomer(customerInfo, customerIdentities, deviceInfo);
+
+                if(purchaseFromCustomerInvoice != null)
+                {
+                    string formattedDate = purchaseFromCustomerInvoice.Date.ToString("dd-MM-yyyy HH:mm:ss");
+
+                    var data = String.Format("Company: RepairBox\nCompanyPhone: 0123456789\nCompanyAddress: Pakistan\nInvoice Number: #INV-{0}\nInvoice Date: {1}\nClient Name: {2}\nClient Address: {3}\nDevice Model: {4}\nDevice IMEI: {5}\nDevice Serial Number: {6}\nDevice Quantity: {7}\nTotal Amount: {8}", purchaseFromCustomerInvoice.invoiceId, formattedDate, customerInfo.Name, customerInfo.Address, deviceInfo.DeviceNameModel, deviceInfo.IMEI, deviceInfo.SerialNumber, 1, deviceInfo.Price);
+
+                    var QRCodePath = String.Format("wwwroot\\QRCode\\{0}-QR.png", purchaseFromCustomerInvoice.invoiceId);
+
+                    QRCodeWriter.CreateQrCode(data, 500, QRCodeWriter.QrErrorCorrectionLevel.Medium).SaveAsPng(QRCodePath);
+
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.UPDATED_SUCCESSFULLY, "Purchase from Customer") });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.NOT_FOUND, "Purchase from Customer") });
+                }
             }
             catch (Exception ex)
             {
