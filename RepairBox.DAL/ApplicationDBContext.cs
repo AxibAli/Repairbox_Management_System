@@ -25,5 +25,6 @@ namespace RepairBox.DAL
         public DbSet<CustomerInfo> CustomerInfos => Set<CustomerInfo>();
         public DbSet<CustomerIdentities> CustomerIdentities => Set<CustomerIdentities>();
         public DbSet<DeviceInfo> DeviceInfos => Set<DeviceInfo>();
+        public DbSet<PurchaseFromCustomerInvoice> PurchaseFromCustomerInvoices => Set<PurchaseFromCustomerInvoice>();
     }
 }

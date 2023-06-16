@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepairBox.BL.DTOs.CustomerInfo
 {
-    public class AddCustomerInfoDTO
+    public class GetCustomerInfoDTO
     {
         public string Name { get; set; }
         public string Email { get; set; }

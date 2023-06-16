@@ -14,5 +14,6 @@ namespace RepairBox.DAL.Entities
         public string Address { get; set; } = string.Empty;
         public ICollection<CustomerIdentities> CustomerIdentities { get; set; }
         public ICollection<DeviceInfo> DeviceInfos { get; set; }
+        public ICollection<PurchaseFromCustomerInvoice> PurchaseFromCustomerInvoices { get; set; }
     }
 }

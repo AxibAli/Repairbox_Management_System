@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepairBox.BL.DTOs.DeviceInfo
 {
-    public class AddDeviceInfoDTO
+    public class GetDeviceInfoDTO
     {
         public string DeviceNameModel { get; set; }
         public string IMEI { get; set; }
