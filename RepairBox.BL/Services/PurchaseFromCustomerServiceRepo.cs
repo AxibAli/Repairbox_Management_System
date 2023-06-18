@@ -6,6 +6,7 @@ using RepairBox.BL.DTOs.Model;
 using RepairBox.BL.DTOs.PurchaseFromCustomerInvoiceDTOs;
 using RepairBox.DAL;
 using RepairBox.DAL.Entities;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,18 +16,18 @@ using System.Xml.Linq;
 
 namespace RepairBox.BL.Services
 {
-    public interface ICustomerProductPurchaseServiceRepo
+    public interface IPurchaseFromCustomerServiceRepo
     {
         public GetInvoiceDataDTO? GetPurchaseFromCustomerInvoice(long id);
-        public int AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
+        public int AddPurchaseFromCustomer(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
         public void AddPurchaseFromCustomerInvoice(AddPurchaseFromCustomerInvoiceDTO purchaseFromCustomerInvoiceDTO);
         public bool DeletePurchaseFromCustomer(long id);
-        public GetPurchaseFromCustomerInvoiceDTO? UpdatePurchaseFromCustomer(UpdateCustomerInfoDTO customerInfoDTO, UpdateCustomerIdentitiesDTO customerIdentitiesDTO, UpdateDeviceInfoDTO deviceInfoDTO);
+        public GetPurchaseFromCustomerInvoiceDTO? UpdatePurchaseFromCustomer(UpdateCustomerInfoDTO customerInfoDTO, UpdateCustomerIdentitiesDTO customerIdentitiesDTO, UpdateDeviceInfoDTO deviceInfoDTO, long invoiceId);
     }
-    public class CustomerProductPurchaseServiceRepo : ICustomerProductPurchaseServiceRepo
+    public class PurchaseFromCustomerServiceRepo : IPurchaseFromCustomerServiceRepo
     {
         public ApplicationDBContext _context;
-        public CustomerProductPurchaseServiceRepo(ApplicationDBContext context)
+        public PurchaseFromCustomerServiceRepo(ApplicationDBContext context)
         {
             _context = context;
         }
@@ -48,7 +49,7 @@ namespace RepairBox.BL.Services
 
             return null;
         }
-        public int AddCustomerProductPurchase(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO)
+        public int AddPurchaseFromCustomer(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO)
         {
             var customerInfo = new CustomerInfo
             {
@@ -134,24 +135,24 @@ namespace RepairBox.BL.Services
             _context.SaveChanges();
             return true;
         }
-        public GetPurchaseFromCustomerInvoiceDTO? UpdatePurchaseFromCustomer(UpdateCustomerInfoDTO customerInfoDTO, UpdateCustomerIdentitiesDTO customerIdentitiesDTO, UpdateDeviceInfoDTO deviceInfoDTO)
+        public GetPurchaseFromCustomerInvoiceDTO? UpdatePurchaseFromCustomer(UpdateCustomerInfoDTO customerInfoDTO, UpdateCustomerIdentitiesDTO customerIdentitiesDTO, UpdateDeviceInfoDTO deviceInfoDTO, long invoiceId)
         {
-            var invoice = _context.PurchaseFromCustomerInvoices.FirstOrDefault(i => i.CustomerInfoId == customerInfoDTO.Id);
+            var invoice = _context.PurchaseFromCustomerInvoices.FirstOrDefault(i => i.invoiceId == invoiceId);
 
             if (invoice == null) { return null; }
 
-            var customerInfo = _context.CustomerInfos.FirstOrDefault(c => c.Id == customerInfoDTO.Id);
+            var customerInfo = _context.CustomerInfos.FirstOrDefault(c => c.Id == invoice.CustomerInfoId);
 
             customerInfo.Name = customerInfoDTO.Name;
             customerInfo.Email = customerInfoDTO.Email;
             customerInfo.PhoneNumber = customerInfoDTO.PhoneNumber;
             customerInfo.Address = customerInfoDTO.Address;
 
-            var customerIdentities = _context.CustomerIdentities.FirstOrDefault(ci => ci.CustomerInfoId == customerInfoDTO.Id);
+            var customerIdentities = _context.CustomerIdentities.FirstOrDefault(ci => ci.CustomerInfoId == invoice.CustomerInfoId);
 
             customerIdentities.Image = customerIdentitiesDTO.Image;
 
-            var deviceInfo = _context.DeviceInfos.FirstOrDefault(d => d.CustomerInfoId == customerInfoDTO.Id);
+            var deviceInfo = _context.DeviceInfos.FirstOrDefault(d => d.CustomerInfoId == invoice.CustomerInfoId);
 
             deviceInfo.DeviceNameModel = deviceInfoDTO.DeviceNameModel;
             deviceInfo.IMEI = deviceInfoDTO.IMEI;

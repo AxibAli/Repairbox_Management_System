@@ -8,27 +8,31 @@ using RepairBox.BL.DTOs.PurchaseFromCustomerInvoiceDTOs;
 using RepairBox.BL.Services;
 using RepairBox.Common.Commons;
 using System.Web;
-using IronBarCode;
 using System.Text;
+using RepairBox.BL.DTOs.PurchaseFromCustomer;
+using RepairBox.Common.Helpers;
 
 namespace RepairBox.API.Controllers
 {
     [Route(DeveloperConstants.ENDPOINT_PREFIX)]
     [ApiController]
-    public class CustomerProductPurchaseController : ControllerBase
+    public class PurchaseFromCustomerController : ControllerBase
     {
-        private ICustomerProductPurchaseServiceRepo _customerProductPurchaseRepo;
-        public CustomerProductPurchaseController(ICustomerProductPurchaseServiceRepo customerProductPurchaseRepo)
+        private IPurchaseFromCustomerServiceRepo _purchaseFromCustomerRepo;
+        private ICompanyServiceRepo _companyServiceRepo;
+        public PurchaseFromCustomerController(IPurchaseFromCustomerServiceRepo purchaseFromCustomerRepo, ICompanyServiceRepo companyServiceRepo)
         {
-            _customerProductPurchaseRepo = customerProductPurchaseRepo;
+            _purchaseFromCustomerRepo = purchaseFromCustomerRepo;
+            _companyServiceRepo = companyServiceRepo;
         }
 
         [HttpGet("GetPurchaseFromCustomerInvoice")]
-        public IActionResult GetPurchaseFromCustomerInvoice(long id)
+        public IActionResult GetPurchaseFromCustomerInvoice(string invoiceId)
         {
             try
             {
-                var data = _customerProductPurchaseRepo.GetPurchaseFromCustomerInvoice(id);
+                long id = ConversionHelper.ConvertToInt64(invoiceId);
+                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerInvoice(id);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)
@@ -37,39 +41,34 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpPost("AddCustomerProductPurchase")]
-        public IActionResult AddCustomerProductPurchase(AddCustomerProductPurchaseDTO addCustomerProductPurchase)
+        [HttpPost("AddPurchaseFromCustomer")]
+        public IActionResult AddPurchaseFromCustomer(AddPurchaseFromCustomerDTO addPurchaseFromCustomer)
         {
-            AddCustomerInfoDTO customerInfo = addCustomerProductPurchase.CustomerInfo;
-            AddCustomerIdentitiesDTO customerIdentities = addCustomerProductPurchase.CustomerIdentities;
-            AddDeviceInfoDTO deviceInfo = addCustomerProductPurchase.DeviceInfo;
+            AddCustomerInfoDTO customerInfo = addPurchaseFromCustomer.CustomerInfo;
+            AddCustomerIdentitiesDTO customerIdentities = addPurchaseFromCustomer.CustomerIdentities;
+            AddDeviceInfoDTO deviceInfo = addPurchaseFromCustomer.DeviceInfo;
 
             try
             {
-                int customerInfoId = _customerProductPurchaseRepo.AddCustomerProductPurchase(customerInfo, customerIdentities, deviceInfo);
+                int customerInfoId = _purchaseFromCustomerRepo.AddPurchaseFromCustomer(customerInfo, customerIdentities, deviceInfo);
 
                 DateTime currentDate = DateTime.Now;
-                string formattedDate = currentDate.ToString("dd-MM-yyyy HH:mm:ss");
-
-                var random = new Random();
+                string formattedDate = ConversionHelper.DateTimeFormatting(currentDate);
+                
                 long invoiceId;
-                long minValue = 1000000000;
-                long maxValue = 9999999999;
 
                 do
                 {
-                    byte[] buffer = new byte[8];
-                    random.NextBytes(buffer);
+                    invoiceId = CommonHelper.RandomLongValueGenerator(1000000000, 9999999999);
+                } while (_purchaseFromCustomerRepo.GetPurchaseFromCustomerInvoice(invoiceId) != null);
 
-                    long longRand = BitConverter.ToInt64(buffer, 0);
-                    invoiceId = Math.Abs(longRand % (maxValue - minValue)) + minValue;
-                } while (_customerProductPurchaseRepo.GetPurchaseFromCustomerInvoice(invoiceId) != null);
+                var company = _companyServiceRepo.GetCompany();
 
-                var data = String.Format("Company: RepairBox\nCompanyPhone: 0123456789\nCompanyAddress: Pakistan\nInvoice Number: #INV-{0}\nInvoice Date: {1}\nClient Name: {2}\nClient Address: {3}\nDevice Model: {4}\nDevice IMEI: {5}\nDevice Serial Number: {6}\nDevice Quantity: {7}\nTotal Amount: {8}",invoiceId,formattedDate,customerInfo.Name,customerInfo.Address,deviceInfo.DeviceNameModel,deviceInfo.IMEI,deviceInfo.SerialNumber,1, deviceInfo.Price);
+                var data = String.Format("Company Name: {0}\nCompany Phone: {1}\nCompany Address: {2}\nInvoice Number: #INV-{3}\nInvoice Date: {4}\nClient Name: {5}\nClient Address: {6}\nDevice Model: {7}\nDevice IMEI: {8}\nDevice Serial Number: {9}\nDevice Quantity: {10}\nTotal Amount: {11}", company.Name, company.Phone, company.Address, invoiceId,formattedDate,customerInfo.Name,customerInfo.Address,deviceInfo.DeviceNameModel,deviceInfo.IMEI,deviceInfo.SerialNumber,1, deviceInfo.Price);
 
                 var QRCodePath = String.Format("wwwroot\\QRCode\\{0}-QR.png", invoiceId);
 
-                QRCodeWriter.CreateQrCode(data, 500, QRCodeWriter.QrErrorCorrectionLevel.Medium).SaveAsPng(QRCodePath);
+                CommonHelper.GenerateQRCode(data, QRCodePath);
 
                 AddPurchaseFromCustomerInvoiceDTO purchaseFromCustomerInvoiceDTO = new AddPurchaseFromCustomerInvoiceDTO();
                 purchaseFromCustomerInvoiceDTO.invoiceId = invoiceId;
@@ -77,7 +76,7 @@ namespace RepairBox.API.Controllers
                 purchaseFromCustomerInvoiceDTO.Date = currentDate;
                 purchaseFromCustomerInvoiceDTO.QRCodePath = QRCodePath;
 
-                _customerProductPurchaseRepo.AddPurchaseFromCustomerInvoice(purchaseFromCustomerInvoiceDTO);
+                _purchaseFromCustomerRepo.AddPurchaseFromCustomerInvoice(purchaseFromCustomerInvoiceDTO);
 
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = invoiceId.ToString(), Message = String.Format(CustomMessage.ADDED_SUCCESSFULLY, "Customer Product Purchase") });
             }
@@ -87,11 +86,12 @@ namespace RepairBox.API.Controllers
             }
         }
         [HttpGet("DeletePurchaseFromCustomer")]
-        public IActionResult DeletePurchaseFromCustomer(long id)
+        public IActionResult DeletePurchaseFromCustomer(string invoiceId)
         {
             try
             {
-                var deleted = _customerProductPurchaseRepo.DeletePurchaseFromCustomer(id);
+                long id = ConversionHelper.ConvertToInt64(invoiceId);
+                var deleted = _purchaseFromCustomerRepo.DeletePurchaseFromCustomer(id);
                 if (deleted)
                 {
                     return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.DELETED_SUCCESSFULLY, "Purchase from Customer") });
@@ -112,26 +112,29 @@ namespace RepairBox.API.Controllers
             UpdateCustomerInfoDTO customerInfo = updatePurchaseFromCustomer.CustomerInfo;
             UpdateCustomerIdentitiesDTO customerIdentities = updatePurchaseFromCustomer.CustomerIdentities;
             UpdateDeviceInfoDTO deviceInfo = updatePurchaseFromCustomer.DeviceInfo;
+            long invoiceId = ConversionHelper.ConvertToInt64(updatePurchaseFromCustomer.invoiceId);
 
             try
             {
-                var purchaseFromCustomerInvoice = _customerProductPurchaseRepo.UpdatePurchaseFromCustomer(customerInfo, customerIdentities, deviceInfo);
+                var purchaseFromCustomerInvoice = _purchaseFromCustomerRepo.UpdatePurchaseFromCustomer(customerInfo, customerIdentities, deviceInfo, invoiceId);
 
                 if(purchaseFromCustomerInvoice != null)
                 {
-                    string formattedDate = purchaseFromCustomerInvoice.Date.ToString("dd-MM-yyyy HH:mm:ss");
+                    string formattedDate = ConversionHelper.DateTimeFormatting(purchaseFromCustomerInvoice.Date);
 
-                    var data = String.Format("Company: RepairBox\nCompanyPhone: 0123456789\nCompanyAddress: Pakistan\nInvoice Number: #INV-{0}\nInvoice Date: {1}\nClient Name: {2}\nClient Address: {3}\nDevice Model: {4}\nDevice IMEI: {5}\nDevice Serial Number: {6}\nDevice Quantity: {7}\nTotal Amount: {8}", purchaseFromCustomerInvoice.invoiceId, formattedDate, customerInfo.Name, customerInfo.Address, deviceInfo.DeviceNameModel, deviceInfo.IMEI, deviceInfo.SerialNumber, 1, deviceInfo.Price);
+                    var company = _companyServiceRepo.GetCompany();
+
+                    var data = String.Format("Company Name: {0}\nCompany Phone: {1}\nCompany Address: {2}\nInvoice Number: #INV-{3}\nInvoice Date: {4}\nClient Name: {5}\nClient Address: {6}\nDevice Model: {7}\nDevice IMEI: {8}\nDevice Serial Number: {9}\nDevice Quantity: {10}\nTotal Amount: {11}", company.Name, company.Phone, company.Address, purchaseFromCustomerInvoice.invoiceId, formattedDate, customerInfo.Name, customerInfo.Address, deviceInfo.DeviceNameModel, deviceInfo.IMEI, deviceInfo.SerialNumber, 1, deviceInfo.Price);
 
                     var QRCodePath = String.Format("wwwroot\\QRCode\\{0}-QR.png", purchaseFromCustomerInvoice.invoiceId);
 
-                    QRCodeWriter.CreateQrCode(data, 500, QRCodeWriter.QrErrorCorrectionLevel.Medium).SaveAsPng(QRCodePath);
+                    CommonHelper.GenerateQRCode(data, QRCodePath);
 
                     return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.UPDATED_SUCCESSFULLY, "Purchase from Customer") });
                 }
                 else
                 {
-                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.NOT_FOUND, "Purchase from Customer") });
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = String.Format(CustomMessage.NOT_FOUND, "Invoice") });
                 }
             }
             catch (Exception ex)

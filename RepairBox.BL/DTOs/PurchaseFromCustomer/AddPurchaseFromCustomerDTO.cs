@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RepairBox.BL.DTOs.CustomerProductPurchase
+namespace RepairBox.BL.DTOs.PurchaseFromCustomer
 {
-    public class AddCustomerProductPurchaseDTO
+    public class AddPurchaseFromCustomerDTO
     {
         public AddCustomerInfoDTO CustomerInfo { get; set; }
         public AddCustomerIdentitiesDTO CustomerIdentities { get; set; }
