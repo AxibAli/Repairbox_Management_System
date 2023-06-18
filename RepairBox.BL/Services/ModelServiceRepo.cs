@@ -15,10 +15,12 @@ namespace RepairBox.BL.Services
 {
     public interface IModelServiceRepo
     {
+        Task AddModel(AddModelDTO data);
         Task AddModels(List<AddModelDTO> datum, int brandId);
         Task DeleteModel(int brandId);
         Task UpdateModel(UpdateModelDTO data);
         IQueryable<SelectListItem> GetModels();
+        IQueryable<SelectListItem> GetModels(int brandId);
         GetModelDTO? GetModel(int modelId);
         PaginationModel GetModels(string query, int pageNo);
         PaginationModel GetModelsByBrandId(string query, int pageNo, int brandId);
@@ -47,6 +49,7 @@ namespace RepairBox.BL.Services
                     BrandId = brandId
                 });
             }
+
             var modelNames = models.Select(x => x.ModelName).ToList();
             int index = 0;
             foreach (var modelName in modelNames)
@@ -144,6 +147,31 @@ namespace RepairBox.BL.Services
             model.Name = data.Name;
             model.ModelName = data.ModelName;
             await _context.SaveChangesAsync();
+        }
+
+        public IQueryable<SelectListItem> GetModels(int brandId)
+        {
+            var models = _context.Models.Where(b => b.BrandId == brandId).Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = b.ModelName
+            });
+
+            return models;
+        }
+
+        public async Task AddModel(AddModelDTO data)
+        {
+            await _context.Models.AddAsync(new Model
+            {
+                Name = data.Name,
+                ModelName = data.Model,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false,
+                BrandId = data.BrandId
+            });
+            await _context.SaveChangesAsync();         
         }
     }
 }

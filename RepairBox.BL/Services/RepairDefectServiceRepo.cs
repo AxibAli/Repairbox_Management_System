@@ -14,10 +14,12 @@ namespace RepairBox.BL.Services
 {
     public interface IRepairDefectServiceRepo
     {
+        Task AddDefect(AddDefectDTO data);
         Task AddDefects(List<AddDefectDTO> datum, int modelId);
         Task DeleteDefect(int defectId);
         Task UpdateDefect(UpdateDefectDTO data);
         IQueryable<SelectListItem> GetDefects();
+        IQueryable<SelectListItem> GetDefects(int modelId);
         GetDefectDTO? GetDefect(int defectId);
         PaginationModel GetDefects(string query, int pageNo);
         PaginationModel GetDefectsByModelId(string query, int pageNo, int modelId);
@@ -135,6 +137,35 @@ namespace RepairBox.BL.Services
             defect.RepairTime = data.RepairTime;
             defect.Cost = data.Cost;
             defect.Price = data.Price;
+            await _context.SaveChangesAsync();
+        }
+
+        public IQueryable<SelectListItem> GetDefects(int modelId)
+        {
+            var models = _context.RepairableDefects.Where(b => b.ModelId == modelId).Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = b.DefectName
+            });
+
+            return models;
+        }
+
+        public async Task AddDefect(AddDefectDTO data)
+        {
+
+            await _context.RepairableDefects.AddAsync(new RepairableDefect
+            {
+                DefectName = data.Title,
+                Cost = ConversionHelper.ConvertToDecimal(data.Cost),
+                Price = ConversionHelper.ConvertToDecimal(data.Price),
+                RepairTime = data.Time,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false,
+                ModelId = data.ModelId
+            });
+
             await _context.SaveChangesAsync();
         }
     }
