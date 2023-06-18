@@ -80,8 +80,11 @@ namespace RepairBox.BL.Services
         public async Task DeleteDefect(int defectId)
         {
             var defect = _context.RepairableDefects.FirstOrDefault(d => d.Id == defectId);
-            defect.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            if (defect != null)
+            {
+                _context.RepairableDefects.Remove(defect);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public GetDefectDTO? GetDefect(int defectId)
@@ -104,7 +107,7 @@ namespace RepairBox.BL.Services
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
             var defectQuery = _context.RepairableDefects.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.ToLower().Contains(query.ToLower()) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
@@ -119,7 +122,7 @@ namespace RepairBox.BL.Services
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
             var defectQuery = _context.RepairableDefects.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true && d.ModelId == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.ToLower().Contains(query.ToLower()) : true && d.ModelId == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel

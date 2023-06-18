@@ -79,8 +79,11 @@ namespace RepairBox.BL.Services
         public async Task DeleteModel(int modelId)
         {
             var model = _context.Models.FirstOrDefault(m => m.Id == modelId);
-            model.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            if (model != null)
+            {
+                _context.Models.Remove(model);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public GetModelDTO? GetModel(int modelId)
@@ -115,7 +118,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.ModelName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.ModelName.ToLower().Contains(query.ToLower()) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
@@ -130,7 +133,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.ModelName.StartsWith(query) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.ModelName.ToLower().Contains(query.ToLower()) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
@@ -171,7 +174,7 @@ namespace RepairBox.BL.Services
                 IsDeleted = false,
                 BrandId = data.BrandId
             });
-            await _context.SaveChangesAsync();         
+            await _context.SaveChangesAsync();
         }
     }
 }
