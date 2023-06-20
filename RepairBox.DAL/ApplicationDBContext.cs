@@ -11,8 +11,10 @@ namespace RepairBox.DAL
         }
 
         public DbSet<User> Users => Set<User>();
-        public DbSet<Role> Roles => Set<Role>();
+        public DbSet<UserRole> Roles => Set<UserRole>();
         public DbSet<Permission> Permissions => Set<Permission>();
+        public DbSet<UserRole_Permission> UserRole_Permissions => Set<UserRole_Permission>();
+        public DbSet<Resource> Resources => Set<Resource>();
         public DbSet<Brand> Brands => Set<Brand>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderDefect> OrderDefects => Set<OrderDefect>();

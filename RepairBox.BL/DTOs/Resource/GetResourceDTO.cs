@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RepairBox.BL.DTOs.Role
+namespace RepairBox.BL.DTOs.Resource
 {
-    public class AddRoleDTO
+    public class GetResourceDTO
     {
+        public int Id { get; set; }
         public string Name { get; set; }
     }
 }

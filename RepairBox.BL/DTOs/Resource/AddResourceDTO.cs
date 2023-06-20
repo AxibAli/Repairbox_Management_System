@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RepairBox.DAL.Entities
+namespace RepairBox.BL.DTOs.Resource
 {
-    public class Role : Base
+    public class AddResourceDTO
     {
         public string Name { get; set; }
-        public ICollection<User> User { get; set; }
     }
 }

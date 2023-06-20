@@ -8,7 +8,6 @@ namespace RepairBox.BL.DTOs.Permission
 {
     public class AddPermissionDTO
     {
-        public int Id { get; set; }
         public string Name { get; set; }
     }
 }
