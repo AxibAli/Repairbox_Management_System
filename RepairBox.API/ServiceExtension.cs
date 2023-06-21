@@ -13,6 +13,7 @@ namespace RepairBox.API
             services.AddScoped<ChargeService>();
 
             // Services
+            services.AddScoped<IUserServiceRepo, UserServiceRepo>();
             services.AddScoped<IEmailServiceRepo, EmailServiceRepo>();
             services.AddScoped<IUserServiceRepo, UserServiceRepo>();
             services.AddScoped<IBrandServiceRepo, BrandServiceRepo>();

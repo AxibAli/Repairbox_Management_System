@@ -10,6 +10,23 @@ namespace RepairBox.DAL
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserRole_Permission>()
+                .HasKey(up => new { up.RoleId, up.PermissionId });
+
+            modelBuilder.Entity<Resource>()
+                .Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            modelBuilder.Entity<Resource>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<User> Users => Set<User>();
         public DbSet<UserRole> Roles => Set<UserRole>();
         public DbSet<Permission> Permissions => Set<Permission>();

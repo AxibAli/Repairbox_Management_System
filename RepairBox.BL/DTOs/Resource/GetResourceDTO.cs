@@ -8,7 +8,6 @@ namespace RepairBox.BL.DTOs.Resource
 {
     public class GetResourceDTO
     {
-        public int Id { get; set; }
         public string Name { get; set; }
     }
 }

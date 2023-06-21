@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RepairBox.BL.DTOs.Permission;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,6 @@ namespace RepairBox.BL.DTOs.Role
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public List<GetAllPermissionsDTO> Permissions { get; set; }
     }
 }

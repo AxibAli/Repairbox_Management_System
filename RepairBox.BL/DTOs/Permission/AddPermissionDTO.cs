@@ -9,5 +9,6 @@ namespace RepairBox.BL.DTOs.Permission
     public class AddPermissionDTO
     {
         public string Name { get; set; }
+        public List<string> ResourceNames { get; set; }
     }
 }

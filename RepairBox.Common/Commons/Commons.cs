@@ -18,6 +18,9 @@ namespace RepairBox.Common.Commons
         public const string INCORRECT_CREDENTIALS = "Email or Password is incorrect.";
         public const string EMAIL_NOT_EXIST = "Email not exist.";
         public const string NEW_PASSWORD_SENT = "New password has sent to the registered email address.";
+        public const string EMAIL_ALREADY_EXIST = "Email already exists.";
+        public const string USERNAME_ALREADY_EXIST = "Username already exists.";
+        public const string LOGIN_SUCCESSFUL = "User successfully logged in.";
     }
 
     public class DeveloperConstants

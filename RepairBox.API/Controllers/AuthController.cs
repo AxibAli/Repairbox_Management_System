@@ -20,7 +20,7 @@ namespace RepairBox.API.Controllers
         {
             try
             {
-                var message = _userRepo.Test();
+                var message = "";
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
             }
             catch (Exception ex)
@@ -34,7 +34,7 @@ namespace RepairBox.API.Controllers
         {
             try
             {
-                var message = _userRepo.Test();
+                var message = "";
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
             }
             catch (Exception)
@@ -48,7 +48,7 @@ namespace RepairBox.API.Controllers
         {
             try
             {
-                var message = _userRepo.Test();
+                var message = "";
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
             }
             catch (Exception)

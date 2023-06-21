@@ -1,4 +1,5 @@
 ﻿using RepairBox.BL.DTOs.User;
+using RepairBox.Common.Commons;
 using RepairBox.Common.Helpers;
 using RepairBox.DAL;
 using RepairBox.DAL.Entities;
@@ -13,7 +14,8 @@ namespace RepairBox.BL.Services
 {
     public interface IUserServiceRepo
     {
-        
+        bool VerifyUserLogin(UserLoginDTO userLoginDTO);
+        bool CreateUser(CreateUserDTO userDTO);
     }
     public class UserServiceRepo : IUserServiceRepo
     {
@@ -23,33 +25,43 @@ namespace RepairBox.BL.Services
             _context = context;
         }
 
-        public bool VerifyUserLogin(UserLogin userLogin)
+        public bool VerifyUserLogin(UserLoginDTO userLoginDTO)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Username == userLogin.Username);
+            var user = _context.Users.FirstOrDefault(u => u.Email == userLoginDTO.Email);
             if (user == null)
             {
                 return false;
             }
             else
             {
-                return CommonHelper.VerifyPassword(userLogin.Password, user.PasswordHash, user.PasswordSalt);
+                return CommonHelper.VerifyPassword(userLoginDTO.Password, user.PasswordHash, user.PasswordSalt);
             }
         }
 
-        public void CreateUser(AddUserDTO userDTO)
+        public bool CreateUser(CreateUserDTO userDTO)
         {
-            (string hash, string salt) = CommonHelper.GenerateHashAndSalt(userDTO.Password); 
+            var checkUserEmail = _context.Users.FirstOrDefault(u => u.Email == userDTO.Email);
+            if(checkUserEmail != null) { return false; }
+
+            (string hash, string salt) = CommonHelper.GenerateHashAndSalt(userDTO.Password);
 
             var user = new User
             {
                 Username = userDTO.Username,
                 Email = userDTO.Email,
                 PasswordHash = hash,
-                PasswordSalt = salt
+                PasswordSalt = salt,
+                IsActive = userDTO.Status,
+                IsDeleted = false,
+                CreatedAt = DateTime.Now
             };
 
             _context.Users.Add(user);
             _context.SaveChanges();
+
+            // Add reference in User Role
+
+            return true;
         }
     }
 }
