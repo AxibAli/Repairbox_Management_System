@@ -12,8 +12,6 @@ namespace RepairBox.DAL.Entities
     public class Resource : Base
     {
         [Required]
-        [MaxLength(255)]
-        [Index(IsUnique = true)]
         public string Name { get; set; }
         [ForeignKey("Permission")]
         public int PermissionId { get; set; }

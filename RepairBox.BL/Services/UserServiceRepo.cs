@@ -51,6 +51,7 @@ namespace RepairBox.BL.Services
                 Email = userDTO.Email,
                 PasswordHash = hash,
                 PasswordSalt = salt,
+                UserRoleId = userDTO.UserRoleId,
                 IsActive = userDTO.Status,
                 IsDeleted = false,
                 CreatedAt = DateTime.Now
@@ -58,8 +59,6 @@ namespace RepairBox.BL.Services
 
             _context.Users.Add(user);
             _context.SaveChanges();
-
-            // Add reference in User Role
 
             return true;
         }

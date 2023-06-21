@@ -21,6 +21,7 @@ namespace RepairBox.Common.Commons
         public const string EMAIL_ALREADY_EXIST = "Email already exists.";
         public const string USERNAME_ALREADY_EXIST = "Username already exists.";
         public const string LOGIN_SUCCESSFUL = "User successfully logged in.";
+        public const string LOGOUT_SUCCESSFUL = "User successfully logged out.";
     }
 
     public class DeveloperConstants

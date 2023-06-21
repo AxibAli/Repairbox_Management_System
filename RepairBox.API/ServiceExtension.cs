@@ -14,6 +14,7 @@ namespace RepairBox.API
 
             // Services
             services.AddScoped<IUserServiceRepo, UserServiceRepo>();
+            services.AddScoped<IRolesPermissionsServiceRepo, RolesPermissionsServiceRepo>();
             services.AddScoped<IEmailServiceRepo, EmailServiceRepo>();
             services.AddScoped<IUserServiceRepo, UserServiceRepo>();
             services.AddScoped<IBrandServiceRepo, BrandServiceRepo>();

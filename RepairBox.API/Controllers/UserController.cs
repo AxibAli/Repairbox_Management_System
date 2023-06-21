@@ -20,48 +20,70 @@ namespace RepairBox.API.Controllers
             _rolesPermissionsRepo = rolesPermissionsRepo;
         }
 
-        [HttpPost("Login")]
-        public IActionResult Login(UserLoginDTO userLogin)
-        {
-            try
-            {
-                bool response = _userRepo.VerifyUserLogin(userLogin);
-                if (response)
-                {
-                    // Session maintaining
-                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL });
-                }
-                else
-                {
-                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.INCORRECT_CREDENTIALS });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-            }
-        }
+        //[HttpPost("Login")]
+        //public IActionResult Login(UserLoginDTO userLogin)
+        //{
+        //    try
+        //    {
+        //        bool response = _userRepo.VerifyUserLogin(userLogin);
+        //        if (response)
+        //        {
+        //            // Session maintaining
+        //            return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL });
+        //        }
+        //        else
+        //        {
+        //            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.INCORRECT_CREDENTIALS });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+        //    }
+        //}
 
-        [HttpPost("CreateUser")]
-        public IActionResult CreateUser(CreateUserDTO createUser)
-        {
-            try
-            {
-                bool response = _userRepo.CreateUser(createUser);
-                if (response)
-                {
-                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "User") });
-                }
-                else
-                {
-                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.EMAIL_ALREADY_EXIST });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-            }
-        }
+        //[HttpPost("Logout")]
+        //public IActionResult Logout()
+        //{
+        //    try
+        //    {
+        //        bool session = false;
+        //        if (session)
+        //        {
+        //            // Destroy session
+        //            return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGOUT_SUCCESSFUL });
+        //        }
+        //        else
+        //        {
+        //            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.INCORRECT_CREDENTIALS });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+        //    }
+        //}
+
+        //[HttpPost("CreateUser")]
+        //public IActionResult CreateUser(CreateUserDTO createUser)
+        //{
+        //    try
+        //    {
+        //        bool response = _userRepo.CreateUser(createUser);
+        //        if (response)
+        //        {
+        //            return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "User") });
+        //        }
+        //        else
+        //        {
+        //            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.EMAIL_ALREADY_EXIST });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+        //    }
+        //}
 
         [HttpGet("GetRoles")]
         public IActionResult GetRoles()
@@ -69,6 +91,20 @@ namespace RepairBox.API.Controllers
             try
             {
                 var data = _rolesPermissionsRepo.GetRoles();
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpGet("GetRoleById")]
+        public IActionResult GetRoleById(int id)
+        {
+            try
+            {
+                var data = _rolesPermissionsRepo.GetRoleById(id);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)
@@ -131,7 +167,7 @@ namespace RepairBox.API.Controllers
         {
             try
             {
-                var data = _rolesPermissionsRepo.GetPermissions();
+                var data = _rolesPermissionsRepo.GetAllPermissions();
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)
@@ -161,6 +197,41 @@ namespace RepairBox.API.Controllers
             {
                 _rolesPermissionsRepo.CreatePermission(addPermission);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "Permission") });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("UpdatePermission")]
+        public IActionResult UpdatePermission(UpdatePermissionDTO updatePermission)
+        {
+            try
+            {
+                _rolesPermissionsRepo.ModifyPermission(updatePermission);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.UPDATED_SUCCESSFULLY, "Permission") });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("DeletePermission")]
+        public IActionResult DeletePermission(int id)
+        {
+            try
+            {
+                bool isDeleted = _rolesPermissionsRepo.DeletePermission(id);
+                if (isDeleted)
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.DELETED_SUCCESSFULLY, "Permission") });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.NOT_FOUND, "Permission") });
+                }
             }
             catch (Exception ex)
             {

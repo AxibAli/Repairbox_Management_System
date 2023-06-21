@@ -15,7 +15,8 @@ namespace RepairBox.BL.Services
 {
     public interface IRolesPermissionsServiceRepo
     {
-        List<GetRoleDTO?> GetRoles();
+        List<GetAllRolesDTO?> GetRoles();
+        GetRoleDTO? GetRoleById(int id);
         List<GetAllPermissionsDTO?> GetAllPermissions();
         GetPermissionDTO? GetPermissionById(int id);
         void CreateRole(AddRoleDTO roleDTO);
@@ -32,16 +33,31 @@ namespace RepairBox.BL.Services
         {
             _context = context;
         }
-        public List<GetRoleDTO?> GetRoles()
+        public List<GetAllRolesDTO?> GetRoles()
         {
-            List<GetRoleDTO> roles = new List<GetRoleDTO>();
+            List<GetAllRolesDTO> roles = new List<GetAllRolesDTO>();
             var roleList = _context.Roles.ToList();
             if (roleList != null)
             {
-                roleList.ForEach(role => roles.Add(Omu.ValueInjecter.Mapper.Map<GetRoleDTO>(role)));
+                roleList.ForEach(role => roles.Add(Omu.ValueInjecter.Mapper.Map<GetAllRolesDTO>(role)));
                 return roles;
             }
             return null;
+        }
+        public GetRoleDTO? GetRoleById(int id)
+        {
+            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
+            var role_permissions = _context.UserRole_Permissions.Where(urp => urp.RoleId == id).ToList();
+
+            if (role == null) { return null; }
+
+            var roleDTO = Omu.ValueInjecter.Mapper.Map<GetRoleDTO>(role);
+            roleDTO.Permissions = role_permissions.Select(urp => new GetAllPermissionsDTO {
+                Id = urp.PermissionId,
+                Name = _context.Permissions.FirstOrDefault(p => p.Id == urp.PermissionId)?.Name
+            }).ToList();
+
+            return roleDTO;
         }
         public List<GetAllPermissionsDTO?> GetAllPermissions()
         {
@@ -57,10 +73,14 @@ namespace RepairBox.BL.Services
         public GetPermissionDTO? GetPermissionById(int id)
         {
             var permission = _context.Permissions.FirstOrDefault(p => p.Id == id);
+            var resources = _context.Resources.Where(r => r.PermissionId == id).ToList();
 
-            if(permission == null) { return null; }
+            if (permission == null) { return null; }
 
-            return Omu.ValueInjecter.Mapper.Map<GetPermissionDTO>(permission);
+            var permissionDTO = Omu.ValueInjecter.Mapper.Map<GetPermissionDTO>(permission);
+            permissionDTO.ResourceNames = resources.Select(r => r.Name).ToList();
+
+            return permissionDTO;
         }
         public void CreateRole(AddRoleDTO roleDTO)
         {
@@ -72,12 +92,12 @@ namespace RepairBox.BL.Services
             _context.Roles.Add(role);
             _context.SaveChanges();
 
-            foreach (var permissionDTO in roleDTO.Permissions) 
+            foreach (var PermId in roleDTO.PermissionIds) 
             {
                 var userRole_Permission = new UserRole_Permission
                 {
                     RoleId = role.Id,
-                    PermissionId = permissionDTO.Id
+                    PermissionId = PermId
                 };
                 _context.UserRole_Permissions.Add(userRole_Permission);
                 _context.SaveChanges();
