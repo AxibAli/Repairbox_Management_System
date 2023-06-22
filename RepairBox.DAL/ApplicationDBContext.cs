@@ -15,15 +15,6 @@ namespace RepairBox.DAL
             modelBuilder.Entity<UserRole_Permission>()
                 .HasKey(up => new { up.RoleId, up.PermissionId });
 
-            modelBuilder.Entity<Resource>()
-                .Property(r => r.Name)
-                .IsRequired()
-                .HasMaxLength(255);
-
-            modelBuilder.Entity<Resource>()
-                .HasIndex(r => r.Name)
-                .IsUnique();
-
             base.OnModelCreating(modelBuilder);
         }
 

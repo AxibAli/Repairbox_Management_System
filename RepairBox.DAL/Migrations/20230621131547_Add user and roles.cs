@@ -70,7 +70,6 @@ namespace RepairBox.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Resources", x => x.Id);
-                    table.UniqueConstraint("UQ_Resources_Name", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(

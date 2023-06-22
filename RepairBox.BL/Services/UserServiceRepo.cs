@@ -36,7 +36,7 @@ namespace RepairBox.BL.Services
         public List<GetUserDTO?> GetUsers()
         {
             List<GetUserDTO> users = new List<GetUserDTO>();
-            var userList = _context.Users.Where(r => r.IsDeleted == false).ToList();
+            var userList = _context.Users.ToList();
 
             if (userList == null) { return null; }
 
@@ -47,7 +47,7 @@ namespace RepairBox.BL.Services
 
         public GetUserDTO? GetUserById(int id)
         {
-            var user = _context.Users.Where(u => u.IsDeleted == false).FirstOrDefault(u => u.Id == id);
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
 
             if (user == null) { return null; }
 
@@ -128,9 +128,7 @@ namespace RepairBox.BL.Services
             
             if (user == null) { return false; }
 
-            user.IsActive = false;
-            user.IsDeleted = true;
-
+            _context.Users.Remove(user);
             _context.SaveChanges();
 
             return true;

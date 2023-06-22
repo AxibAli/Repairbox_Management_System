@@ -43,25 +43,35 @@ namespace RepairBox.API.Controllers
                     };
 
                     // Generate JWT Token
-                    var tokenKey = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
+                    //var tokenKey = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
                     var tokenIssuer = _configuration["Jwt:Issuer"];
                     var tokenAudience = _configuration["Jwt:Audience"];
                     var tokenExpiryMinutes = Convert.ToDouble(_configuration["Jwt:ExpiryMinutes"]);
 
+                    int keySizeInBits = 256;
+
+                    var tokenKey = new byte[keySizeInBits / 8];
+
+                    using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+                    {
+                        rng.GetBytes(tokenKey);
+                    }
+
                     var tokenDescriptor = new SecurityTokenDescriptor
                     {
                         Subject = new ClaimsIdentity(claims),
+                        NotBefore = DateTime.UtcNow,
                         Expires = DateTime.UtcNow.AddMinutes(tokenExpiryMinutes),
                         Issuer = tokenIssuer,
                         Audience = tokenAudience,
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256)
                     };
 
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.CreateToken(tokenDescriptor);
                     var JWT_Token = tokenHandler.WriteToken(token);
 
-                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL });
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL, Data = JWT_Token });
                 }
                 else
                 {

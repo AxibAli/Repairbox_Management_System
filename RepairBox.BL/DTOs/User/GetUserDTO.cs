@@ -11,7 +11,7 @@ namespace RepairBox.BL.DTOs.User
         public int Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        public bool isActive { get; set; }
-        public int UserRoleId { get; set; }
+        public bool IsActive { get; set; }
+        public int? UserRoleId { get; set; }
     }
 }

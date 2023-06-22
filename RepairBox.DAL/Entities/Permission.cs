@@ -9,5 +9,7 @@ namespace RepairBox.DAL.Entities
     public class Permission : Base
     {
         public string Name { get; set; }
+        public ICollection<UserRole_Permission> UserRole_Permissions { get; set; }
+        public ICollection<Resource> Resources { get; set; }
     }
 }

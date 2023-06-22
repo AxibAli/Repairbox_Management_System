@@ -36,7 +36,7 @@ namespace RepairBox.BL.Services
         public List<GetAllRolesDTO?> GetRoles()
         {
             List<GetAllRolesDTO> roles = new List<GetAllRolesDTO>();
-            var roleList = _context.Roles.Where(r => r.IsDeleted == false).ToList();
+            var roleList = _context.Roles.ToList();
             if (roleList != null)
             {
                 roleList.ForEach(role => roles.Add(Omu.ValueInjecter.Mapper.Map<GetAllRolesDTO>(role)));
@@ -46,7 +46,7 @@ namespace RepairBox.BL.Services
         }
         public GetRoleDTO? GetRoleById(int id)
         {
-            var role = _context.Roles.Where(r => r.IsDeleted == false).FirstOrDefault(r => r.Id == id);
+            var role = _context.Roles.FirstOrDefault(r => r.Id == id);
             var role_permissions = _context.UserRole_Permissions.Where(urp => urp.RoleId == id).ToList();
 
             if (role == null) { return null; }
@@ -56,7 +56,7 @@ namespace RepairBox.BL.Services
                 .Select(urp =>
                 {
                     var permission = _context.Permissions
-                        .FirstOrDefault(p => p.Id == urp.PermissionId && p.IsDeleted == false);
+                        .FirstOrDefault(p => p.Id == urp.PermissionId);
 
                     return new GetAllPermissionsDTO
                     {
@@ -72,7 +72,7 @@ namespace RepairBox.BL.Services
         public List<GetAllPermissionsDTO?> GetAllPermissions()
         {
             List<GetAllPermissionsDTO> permissions = new List<GetAllPermissionsDTO>();
-            var permissionList = _context.Permissions.Where(p => p.IsDeleted == false).ToList();
+            var permissionList = _context.Permissions.ToList();
             if (permissionList != null)
             {
                 permissionList.ForEach(role => permissions.Add(Omu.ValueInjecter.Mapper.Map<GetAllPermissionsDTO>(role)));
@@ -82,7 +82,7 @@ namespace RepairBox.BL.Services
         }
         public GetPermissionDTO? GetPermissionById(int id)
         {
-            var permission = _context.Permissions.Where(p => p.IsDeleted == false).FirstOrDefault(p => p.Id == id);
+            var permission = _context.Permissions.FirstOrDefault(p => p.Id == id);
             var resources = _context.Resources.Where(r => r.PermissionId == id).ToList();
 
             if (permission == null) { return null; }
@@ -193,10 +193,7 @@ namespace RepairBox.BL.Services
             var role = _context.Roles.FirstOrDefault(r => r.Id == id);
             if (role != null)
             {
-                //_context.Roles.Remove(role);
-                role.IsActive = false;
-                role.IsDeleted = true;
-
+                _context.Roles.Remove(role);
                 _context.SaveChanges();
 
                 return true;
@@ -209,10 +206,7 @@ namespace RepairBox.BL.Services
             var permission = _context.Permissions.FirstOrDefault(p => p.Id == id);
             if(permission != null)
             {
-                //_context.Permissions.Remove(permission);
-                permission.IsActive = false;
-                permission.IsDeleted = true;
-
+                _context.Permissions.Remove(permission);
                 _context.SaveChanges();
 
                 return true;

@@ -15,6 +15,8 @@ namespace RepairBox.DAL.Entities
         public string PasswordSalt { get; set; } = string.Empty;
 
         [ForeignKey("UserRole")]
-        public int UserRoleId { get; set; }
+        public int? UserRoleId { get; set; }
+
+        public UserRole UserRole { get; set; }
     }
 }

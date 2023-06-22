@@ -11,9 +11,10 @@ namespace RepairBox.DAL.Entities
 {
     public class Resource : Base
     {
-        [Required]
         public string Name { get; set; }
+
         [ForeignKey("Permission")]
         public int PermissionId { get; set; }
+        public Permission Permission { get; set; }
     }
 }

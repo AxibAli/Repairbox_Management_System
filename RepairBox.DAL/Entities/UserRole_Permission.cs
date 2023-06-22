@@ -12,12 +12,14 @@ namespace RepairBox.DAL.Entities
     {
         [Key]
         [Column(Order = 0)]
-        [ForeignKey("Role")]
+        [ForeignKey("UserRole")]
         public int RoleId { get; set; }
+        public UserRole Role { get; set; }
 
         [Key]
         [Column(Order = 1)]
         [ForeignKey("Permission")]
         public int PermissionId { get; set; }
+        public Permission Permission { get; set; }
     }
 }
