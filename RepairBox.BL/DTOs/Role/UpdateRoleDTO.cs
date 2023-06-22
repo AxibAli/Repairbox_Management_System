@@ -11,6 +11,6 @@ namespace RepairBox.BL.DTOs.Role
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<GetAllPermissionsDTO> Permissions { get; set; }
+        public List<int> PermissionIds { get; set; }
     }
 }
