@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace RepairBox.BL.DTOs.User
 {
-    public class GetUserDTO
+    public class UserChangePasswordDTO
     {
         public int Id { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public bool isActive { get; set; }
-        public int UserRoleId { get; set; }
+        public string CurrentPassword { get; set; }
+        public string NewPassword1 { get; set; }
+        public string NewPassword2 { get; set; }
     }
 }

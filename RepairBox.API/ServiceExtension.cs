@@ -1,4 +1,5 @@
-﻿using RepairBox.BL.Services;
+﻿using Microsoft.Extensions.Caching.Memory;
+using RepairBox.BL.Services;
 using Stripe;
 
 namespace RepairBox.API
@@ -24,6 +25,7 @@ namespace RepairBox.API
             services.AddScoped<IStatusServiceRepo, StatusServiceRepo>();
             services.AddScoped<IStripeService, StripeService>();
             services.AddScoped<IOrderServiceRepo, OrderServiceRepo>();
+            services.AddScoped<IMemoryCache, MemoryCache>();
         }
     }
 }

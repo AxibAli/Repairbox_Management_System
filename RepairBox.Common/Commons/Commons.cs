@@ -22,6 +22,9 @@ namespace RepairBox.Common.Commons
         public const string USERNAME_ALREADY_EXIST = "Username already exists.";
         public const string LOGIN_SUCCESSFUL = "User successfully logged in.";
         public const string LOGOUT_SUCCESSFUL = "User successfully logged out.";
+        public const string PASSWORD_NOT_MATCH = "Passwords are not matching.";
+        public const string PASSWORD_INCORRECT = "Password is incorrect";
+        public const string PASSWORD_CHANGED = "Password has successfully changed.";
     }
 
     public class DeveloperConstants

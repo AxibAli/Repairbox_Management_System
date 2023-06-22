@@ -74,6 +74,26 @@ namespace RepairBox.API.Controllers
             }
         }
 
+        [HttpGet("IsLoggedIn")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult IsLoggedIn()
+        {
+            try
+            {
+                // User is authenticated
+                // You can access user information from the claims
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var otherProperties = User.FindFirst("OtherProperties")?.Value;
+
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = "User is logged in." });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+
         [HttpPost("Logout")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Logout(string email)
@@ -93,27 +113,6 @@ namespace RepairBox.API.Controllers
                     return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "User not logged in." });
                 }
                 
-            }
-            catch (Exception ex)
-            {
-                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-            }
-        }
-
-        [HttpPost("CreateUser")]
-        public IActionResult CreateUser(CreateUserDTO createUser)
-        {
-            try
-            {
-                bool response = _userRepo.CreateUser(createUser);
-                if (response)
-                {
-                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "User") });
-                }
-                else
-                {
-                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.EMAIL_ALREADY_EXIST });
-                }
             }
             catch (Exception ex)
             {

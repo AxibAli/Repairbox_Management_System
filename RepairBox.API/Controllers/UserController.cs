@@ -85,6 +85,127 @@ namespace RepairBox.API.Controllers
         //    }
         //}
 
+        [HttpGet("GetUsers")]
+        public IActionResult GetUsers()
+        {
+            try
+            {
+                var data = _userRepo.GetUsers();
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpGet("GetUserById")]
+        public IActionResult GetUserById(int id)
+        {
+            try
+            {
+                var data = _userRepo.GetUserById(id);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("CreateUser")]
+        public IActionResult CreateUser(CreateUserDTO createUser)
+        {
+            try
+            {
+                bool response = _userRepo.CreateUser(createUser);
+                if (response)
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.ADDED_SUCCESSFULLY, "User") });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.EMAIL_ALREADY_EXIST });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("UpdateSelfUser")]
+        public IActionResult UpdateSelfUser(UpdateSelfUserDTO updateUser)
+        {
+            try
+            {
+                _userRepo.ModifySelfUser(updateUser);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.UPDATED_SUCCESSFULLY, "User") });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("UpdateOtherUser")]
+        public IActionResult UpdateOtherUser(UpdateOtherUserDTO updateUser)
+        {
+            try
+            {
+                _userRepo.ModifyOtherUser(updateUser);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.UPDATED_SUCCESSFULLY, "User") });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("DeleteUser")]
+        public IActionResult DeleteUser(int id)
+        {
+            try
+            {
+                bool isDeleted = _userRepo.DeleteUser(id);
+                if (isDeleted)
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.DELETED_SUCCESSFULLY, "User") });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.NOT_FOUND, "User") });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("ChangePassword")]
+        public IActionResult ChangePassword(UserChangePasswordDTO changePassword)
+        {
+            try
+            {
+                (string message, bool result) = _userRepo.ChangePassword(changePassword);
+
+                if(result)
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = message });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+            
+        }
+
         [HttpGet("GetRoles")]
         public IActionResult GetRoles()
         {
