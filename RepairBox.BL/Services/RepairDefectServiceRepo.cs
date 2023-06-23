@@ -51,11 +51,11 @@ namespace RepairBox.BL.Services
                 });
             }
 
-            var defectNames = defects.Select(x => x.DefectName).ToList();
+            var defectNames = defects.Select(x => x.DefectName.ToLower().Trim()).ToList();
             int index = 0;
             foreach (var defectName in defectNames)
             {
-                var d = IGetDefects().FirstOrDefault(d => d.DefectName.Contains(defectName));
+                var d = IGetDefects().FirstOrDefault(d => d.DefectName.ToLower().Trim().Contains(defectName));
                 if (d != null)
                 {
                     defects.RemoveAt(index);

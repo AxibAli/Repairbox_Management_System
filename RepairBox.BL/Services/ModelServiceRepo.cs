@@ -50,11 +50,11 @@ namespace RepairBox.BL.Services
                 });
             }
 
-            var modelNames = models.Select(x => x.ModelName).ToList();
+            var modelNames = models.Select(x => x.ModelName.ToLower().Trim()).ToList();
             int index = 0;
             foreach (var modelName in modelNames)
             {
-                var d = IGetModels().FirstOrDefault(d => d.ModelName.Contains(modelName));
+                var d = IGetModels().FirstOrDefault(d => d.ModelName.ToLower().Trim().Contains(modelName));
                 if (d != null)
                 {
                     models.RemoveAt(index);
@@ -108,7 +108,7 @@ namespace RepairBox.BL.Services
             var models = _context.Models.Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
-                Text = b.ModelName
+                Text = b.Name
             });
 
             return models;
@@ -149,6 +149,7 @@ namespace RepairBox.BL.Services
             var model = _context.Models.FirstOrDefault(m => m.Id == data.Id);
             model.Name = data.Name;
             model.ModelName = data.ModelName;
+            model.BrandId = data.BrandId;
             await _context.SaveChangesAsync();
         }
 
@@ -157,7 +158,7 @@ namespace RepairBox.BL.Services
             var models = _context.Models.Where(b => b.BrandId == brandId).Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
-                Text = b.ModelName
+                Text = b.Name
             });
 
             return models;

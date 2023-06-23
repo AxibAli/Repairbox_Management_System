@@ -60,11 +60,11 @@ namespace RepairBox.BL.Services
                 });
             }
 
-            var brandNames = brands.Select(x => x.Name).ToList();
+            var brandNames = brands.Select(x => x.Name.ToLower().Trim()).ToList();
             int index = 0;
             foreach (var brandName in brandNames)
             {
-                var d = IGetBrands().FirstOrDefault(d => d.Name.Contains(brandName));
+                var d = IGetBrands().FirstOrDefault(d => d.Name.ToLower().Trim().Contains(brandName));
                 if (d != null)
                 {
                     brands.RemoveAt(index);

@@ -158,11 +158,11 @@ namespace RepairBox.API.Controllers
         }
 
         [HttpPost("UpdateModel")]
-        public async Task<IActionResult> UpdateModel(int Id, string Name)
+        public async Task<IActionResult> UpdateModel(UpdateModelDTO model)
         {
             try
             {
-                await _brandRepo.UpdateBrand(Id, Name);
+                await _modelRepo.UpdateModel(model);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = string.Format(CustomMessage.UPDATED_SUCCESSFULLY, "Model") });
             }
             catch (Exception ex)
@@ -213,19 +213,19 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpGet("GetBrandModels")]
-        public IActionResult GetBrandModels(string? query, int brandId, int pageNo = 1)
-        {
-            try
-            {
-                var data = _modelRepo.GetModelsByBrandId(query, pageNo, brandId);
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-            }
-        }
+        //[HttpGet("GetBrandModels")]
+        //public IActionResult GetBrandModels(string? query, int brandId, int pageNo = 1)
+        //{
+        //    try
+        //    {
+        //        var data = _modelRepo.GetModelsByBrandId(query, pageNo, brandId);
+        //        return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+        //    }
+        //}
 
         [HttpGet("GetModelsforDropdown")]
         public IActionResult GetModelsforDropdown()
@@ -342,19 +342,19 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpGet("GetModelDefects")]
-        public IActionResult GetModelDefects(string? query, int modelId, int pageNo = 1)
-        {
-            try
-            {
-                var data = _defectRepo.GetDefectsByModelId(query, pageNo, modelId);
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-            }
-        }
+        //[HttpGet("GetModelDefects")]
+        //public IActionResult GetModelDefects(string? query, int modelId, int pageNo = 1)
+        //{
+        //    try
+        //    {
+        //        var data = _defectRepo.GetDefectsByModelId(query, pageNo, modelId);
+        //        return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+        //    }
+        //}
 
         [HttpGet("GetDefectsforDropdown")]
         public IActionResult GetDefectsforDropdown()

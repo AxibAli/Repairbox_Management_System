@@ -8,6 +8,7 @@ namespace RepairBox.BL.DTOs.RepairDefect
 {
     public class GetDefectDTO
     {
+        public int Id { get; set; }
         public string DefectName { get; set; }
         public string RepairTime { get; set; }
         public decimal Cost { get; set; }
