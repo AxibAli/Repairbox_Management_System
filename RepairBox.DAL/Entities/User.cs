@@ -13,9 +13,12 @@ namespace RepairBox.DAL.Entities
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string PasswordSalt { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public DateTime? TokenCreated { get; set; }
+        public DateTime? TokenExpires { get; set; }
 
         [ForeignKey("UserRole")]
-        public int? UserRoleId { get; set; }
+        public int UserRoleId { get; set; }
 
         public UserRole UserRole { get; set; }
     }
