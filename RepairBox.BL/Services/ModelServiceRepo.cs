@@ -108,7 +108,7 @@ namespace RepairBox.BL.Services
             var models = _context.Models.Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
-                Text = b.Name
+                Text = $"{b.Name} {b.ModelName}"
             });
 
             return models;
@@ -158,7 +158,7 @@ namespace RepairBox.BL.Services
             var models = _context.Models.Where(b => b.BrandId == brandId).Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
-                Text = b.Name
+                Text = $"{b.Name} {b.ModelName}"
             });
 
             return models;
