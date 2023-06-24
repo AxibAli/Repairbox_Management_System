@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -8,11 +10,6 @@ using RepairBox.API.Models;
 using RepairBox.BL.DTOs.User;
 using RepairBox.BL.Services;
 using RepairBox.Common.Commons;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
-
-using RepairBox.DAL.Entities;
 
 namespace RepairBox.API.Controllers
 {
@@ -33,7 +30,7 @@ namespace RepairBox.API.Controllers
             var refreshToken = new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.Now.AddDays(7),
+                Expires = DateTime.Now.AddDays(1),
                 Created = DateTime.Now
             };
 
@@ -52,12 +49,13 @@ namespace RepairBox.API.Controllers
             _userRepo.SetRefreshToken(userEmail, newRefreshToken);
         }
 
-        private string CreateToken(string userEmail)
+        private string CreateToken(UserCreateTokenDTO userTokenDTO)
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, userEmail),
-                new Claim(ClaimTypes.Role, "Admin")
+                new Claim(ClaimTypes.Email, userTokenDTO.Email),
+                new Claim(ClaimTypes.Role, userTokenDTO.Role),
+                new Claim(ClaimTypes.UserData, JsonSerializer.Serialize(userTokenDTO.Resources))
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
@@ -85,13 +83,20 @@ namespace RepairBox.API.Controllers
                 bool response = _userRepo.VerifyUserLogin(userLogin);
                 if (response)
                 {
-                    string token = CreateToken(userLogin.Email);
+                    var userRolesResources = _userRepo.GetUserRoleResourcesForToken(userLogin.Email);
+
+                    if(userRolesResources is null)
+                        return Unauthorized();
+
+                    string token = CreateToken(userRolesResources);
+
+                    userRolesResources.Token = token;
 
                     var refreshToken = GenerateRefreshToken();
 
                     SetRefreshToken(refreshToken, userLogin.Email);
 
-                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL, Data = token });
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL, Data = userRolesResources });
                 }
                 else
                 {
@@ -110,8 +115,28 @@ namespace RepairBox.API.Controllers
         {
             try
             {
+                var principal = HttpContext.User;
+                var isValidToken = principal.Identity is { IsAuthenticated: true };
+
+                if (!isValidToken)
+                {
+                    return Unauthorized();
+                }
+
                 var userEmail = _userRepo.GetMyEmail();
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = "User is logged in.", Data = userEmail });
+
+                if(userEmail == null)
+                {
+                    return Unauthorized();
+                }
+
+                var refreshToken = _userRepo.GetRefreshToken(userEmail);
+                if(refreshToken.Token == "")
+                {
+                    return Unauthorized();
+                }
+
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.USER_LOGGED_IN, Data = userEmail });
             }
             catch (Exception ex)
             {
@@ -136,18 +161,27 @@ namespace RepairBox.API.Controllers
                 }
                 else if (tokenDTO.Token.Equals(refreshToken))
                 {
-                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "Invalid Refresh Token." });
+                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.INVALID_REFRESH_TOKEN });
                 }
                 else if (tokenDTO.Expires < DateTime.Now)
                 {
-                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "Token expired." });
+                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.EXPIRED_TOKEN });
                 }
 
-                string token = CreateToken(userEmail);
+                var userRolesResources = _userRepo.GetUserRoleResourcesForToken(userEmail);
+
+                if (userRolesResources is null)
+                    return Unauthorized();
+
+                string token = CreateToken(userRolesResources);
+
+                userRolesResources.Token = token;
+
                 var newRefreshToken = GenerateRefreshToken();
+
                 SetRefreshToken(newRefreshToken, userEmail);
 
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = "Token Refreshed", Data = token });
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.TOKEN_REFRESHED, Data = token });
             }
             catch (Exception ex)
             {
@@ -166,7 +200,6 @@ namespace RepairBox.API.Controllers
 
                 _userRepo.ClearRefreshToken(userEmail);
 
-                // Remove the refresh token cookie
                 Response.Cookies.Delete("refreshToken");
 
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGOUT_SUCCESSFUL });
@@ -176,48 +209,5 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
-
-
-        //[HttpGet("Login")]
-        //public IActionResult Login()
-        //{
-        //    try
-        //    {
-        //        var message = "";
-        //        return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
-        //    }
-        //}
-
-        //[HttpGet("/Payment")]
-        //public IActionResult Payment()
-        //{
-        //    try
-        //    {
-        //        var message = "";
-        //        return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
-
-        //[HttpGet("/Order")]
-        //public IActionResult Order()
-        //{
-        //    try
-        //    {
-        //        var message = "";
-        //        return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = message });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
     }
 }

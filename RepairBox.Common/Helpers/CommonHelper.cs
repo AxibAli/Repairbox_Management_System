@@ -1,9 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace RepairBox.Common.Helpers
 {
@@ -56,6 +59,35 @@ namespace RepairBox.Common.Helpers
             byte[] computedHash = GenerateHash(password, saltBytes);
 
             return SlowEquals(hashBytes, computedHash);
+        }
+
+        public static string DecodeJwtToken(string token, dynamic JwtConfig)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = JwtConfig.Issuer,
+                ValidAudience = JwtConfig.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtConfig.SecretKey))
+            };
+
+            var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+
+            var claims = claimsPrincipal.Claims;
+
+            var claimDictionary = new Dictionary<string, string>();
+
+            foreach (var claim in claims)
+            {
+                claimDictionary[claim.Type] = claim.Value;
+            }
+
+            return JsonSerializer.Serialize(claimDictionary);
         }
     }
 }

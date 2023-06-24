@@ -25,6 +25,10 @@ namespace RepairBox.Common.Commons
         public const string PASSWORD_NOT_MATCH = "Passwords are not matching.";
         public const string PASSWORD_INCORRECT = "Password is incorrect";
         public const string PASSWORD_CHANGED = "Password has successfully changed.";
+        public const string USER_LOGGED_IN = "User is logged in.";
+        public const string INVALID_REFRESH_TOKEN = "Invalid Refresh Token.";
+        public const string EXPIRED_TOKEN = "Token is expired.";
+        public const string TOKEN_REFRESHED = "Token Refreshed.";
     }
 
     public class DeveloperConstants

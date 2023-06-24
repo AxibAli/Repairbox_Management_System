@@ -1,20 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using RepairBox.BL.DTOs.Permission;
-using RepairBox.BL.DTOs.Role;
 using RepairBox.BL.DTOs.User;
 using RepairBox.Common.Commons;
 using RepairBox.Common.Helpers;
 using RepairBox.DAL;
 using RepairBox.DAL.Entities;
-using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RepairBox.BL.Services
 {
@@ -23,6 +13,7 @@ namespace RepairBox.BL.Services
         bool VerifyUserLogin(UserLoginDTO userLoginDTO);
         List<GetUserDTO?> GetUsers();
         GetUserDTO? GetUserById(int id);
+        UserCreateTokenDTO? GetUserRoleResourcesForToken(string email);
         bool CreateUser(CreateUserDTO userDTO);
         void ModifySelfUser(UpdateSelfUserDTO userDTO);
         void ModifyOtherUser(UpdateOtherUserDTO userDTO);
@@ -65,17 +56,43 @@ namespace RepairBox.BL.Services
             return userDTO;
         }
 
+        public UserCreateTokenDTO? GetUserRoleResourcesForToken(string email)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+
+            if (user is null)
+                return null;
+
+            var role = _context.Roles.FirstOrDefault(r => r.Id == user.UserRoleId);
+
+            var permissionIds = _context.UserRole_Permissions
+                .Where(urp => urp.RoleId == role.Id)
+                .Select(urp => urp.PermissionId)
+                .ToList();
+
+            var resources = _context.Resources
+                .Select(r => new { Resource = r, HasPermission = permissionIds.Contains(r.PermissionId) })
+                .ToDictionary(r => r.Resource.Name, r => r.HasPermission);
+
+            var userRoleResources = new UserCreateTokenDTO
+            {
+                Username = user.Username,
+                Email = email,
+                Role = role.Name,
+                Resources = resources,
+                Token = null
+            };
+
+            return userRoleResources;
+        }
+
         public bool VerifyUserLogin(UserLoginDTO userLoginDTO)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == userLoginDTO.Email);
-            if (user == null)
-            {
+            if (user is null)
                 return false;
-            }
-            else
-            {
-                return CommonHelper.VerifyPassword(userLoginDTO.Password, user.PasswordHash, user.PasswordSalt);
-            }
+
+            return CommonHelper.VerifyPassword(userLoginDTO.Password, user.PasswordHash, user.PasswordSalt);
         }
 
         public bool CreateUser(CreateUserDTO userDTO)
