@@ -18,6 +18,17 @@ namespace RepairBox.Common.Commons
         public const string INCORRECT_CREDENTIALS = "Email or Password is incorrect.";
         public const string EMAIL_NOT_EXIST = "Email not exist.";
         public const string NEW_PASSWORD_SENT = "New password has sent to the registered email address.";
+        public const string EMAIL_ALREADY_EXIST = "Email already exists.";
+        public const string USERNAME_ALREADY_EXIST = "Username already exists.";
+        public const string LOGIN_SUCCESSFUL = "User successfully logged in.";
+        public const string LOGOUT_SUCCESSFUL = "User successfully logged out.";
+        public const string PASSWORD_NOT_MATCH = "Passwords are not matching.";
+        public const string PASSWORD_INCORRECT = "Password is incorrect";
+        public const string PASSWORD_CHANGED = "Password has successfully changed.";
+        public const string USER_LOGGED_IN = "User is logged in.";
+        public const string INVALID_REFRESH_TOKEN = "Invalid Refresh Token.";
+        public const string EXPIRED_TOKEN = "Token is expired.";
+        public const string TOKEN_REFRESHED = "Token Refreshed.";
     }
 
     public class DeveloperConstants

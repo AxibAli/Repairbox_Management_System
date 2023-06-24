@@ -1,4 +1,5 @@
-﻿using RepairBox.BL.Services;
+﻿using Microsoft.Extensions.Caching.Memory;
+using RepairBox.BL.Services;
 using Stripe;
 
 namespace RepairBox.API
@@ -13,6 +14,8 @@ namespace RepairBox.API
             services.AddScoped<ChargeService>();
 
             // Services
+            services.AddScoped<IUserServiceRepo, UserServiceRepo>();
+            services.AddScoped<IRolesPermissionsServiceRepo, RolesPermissionsServiceRepo>();
             services.AddScoped<IEmailServiceRepo, EmailServiceRepo>();
             services.AddScoped<IUserServiceRepo, UserServiceRepo>();
             services.AddScoped<IBrandServiceRepo, BrandServiceRepo>();
@@ -24,6 +27,7 @@ namespace RepairBox.API
             services.AddScoped<IOrderServiceRepo, OrderServiceRepo>();
             services.AddScoped<IPurchaseFromCustomerServiceRepo, PurchaseFromCustomerServiceRepo>();
             services.AddScoped<ICompanyServiceRepo, CompanyServiceRepo>();
+            services.AddScoped<IMemoryCache, MemoryCache>();
         }
     }
 }
