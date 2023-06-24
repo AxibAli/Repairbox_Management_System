@@ -61,11 +61,13 @@ namespace RepairBox.API.Controllers
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration["Jwt:Token"]));
+                _configuration["Jwt:SecretKey"]));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: creds);
@@ -78,7 +80,6 @@ namespace RepairBox.API.Controllers
         [HttpPost("Login")]
         public IActionResult Login(UserLoginDTO userLogin)
         {
-            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "API not implemented yet." });
             try
             {
                 bool response = _userRepo.VerifyUserLogin(userLogin);
@@ -89,43 +90,6 @@ namespace RepairBox.API.Controllers
                     var refreshToken = GenerateRefreshToken();
 
                     SetRefreshToken(refreshToken, userLogin.Email);
-
-                    /*
-                    var claims = new List<Claim>()
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, userLogin.Email),
-                        new Claim("OtherProperties", "Example Role")
-                    };
-
-                    // Generate JWT Token
-                    //var tokenKey = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
-                    var tokenIssuer = _configuration["Jwt:Issuer"];
-                    var tokenAudience = _configuration["Jwt:Audience"];
-                    var tokenExpiryMinutes = Convert.ToDouble(_configuration["Jwt:ExpiryMinutes"]);
-
-                    int keySizeInBits = 256;
-
-                    var tokenKey = new byte[keySizeInBits / 8];
-
-                    using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
-                    {
-                        rng.GetBytes(tokenKey);
-                    }
-
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(claims),
-                        NotBefore = DateTime.UtcNow,
-                        Expires = DateTime.UtcNow.AddMinutes(tokenExpiryMinutes),
-                        Issuer = tokenIssuer,
-                        Audience = tokenAudience,
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256)
-                    };
-
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var JWT_Token = tokenHandler.WriteToken(token);
-                    */
 
                     return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.LOGIN_SUCCESSFUL, Data = token });
                 }
@@ -141,14 +105,13 @@ namespace RepairBox.API.Controllers
         }
 
         [HttpGet("IsLoggedIn")]
-        //[Authorize]
+        [Authorize]
         public IActionResult IsLoggedIn()
         {
-            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "API not implemented yet." });
             try
             {
-                var data = _userRepo.GetMyEmail();
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = "User is logged in.", Data = data });
+                var userEmail = _userRepo.GetMyEmail();
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = "User is logged in.", Data = userEmail });
             }
             catch (Exception ex)
             {
@@ -159,7 +122,6 @@ namespace RepairBox.API.Controllers
         [HttpPost("RefreshToken")]
         public IActionResult RefreshToken()
         {
-            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "API not implemented yet." });
             try
             {
                 var refreshToken = Request.Cookies["refreshToken"];
@@ -195,13 +157,12 @@ namespace RepairBox.API.Controllers
         }
 
         [HttpPost("Logout")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         public IActionResult Logout()
         {
-            return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = "API not implemented yet." });
             try
             {
-                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                var userEmail = _userRepo.GetMyEmail();
 
                 _userRepo.ClearRefreshToken(userEmail);
 

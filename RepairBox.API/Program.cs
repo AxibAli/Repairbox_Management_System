@@ -20,11 +20,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                .GetBytes(builder.Configuration.GetSection("Jwt:Token").Value)),
-            ValidateIssuer = false,
-            ValidateAudience = false
+            ValidIssuer = builder.Configuration.GetSection("Jwt:Issuer").Value,
+            ValidAudience = builder.Configuration.GetSection("Jwt:Audience").Value,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:SecretKey").Value))
         };
     });
 
