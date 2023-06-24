@@ -14,10 +14,12 @@ namespace RepairBox.BL.Services
 {
     public interface IRepairDefectServiceRepo
     {
+        Task AddDefect(AddDefectDTO data);
         Task AddDefects(List<AddDefectDTO> datum, int modelId);
         Task DeleteDefect(int defectId);
         Task UpdateDefect(UpdateDefectDTO data);
         IQueryable<SelectListItem> GetDefects();
+        IQueryable<SelectListItem> GetDefects(int modelId);
         GetDefectDTO? GetDefect(int defectId);
         PaginationModel GetDefects(string query, int pageNo);
         PaginationModel GetDefectsByModelId(string query, int pageNo, int modelId);
@@ -49,11 +51,11 @@ namespace RepairBox.BL.Services
                 });
             }
 
-            var defectNames = defects.Select(x => x.DefectName).ToList();
+            var defectNames = defects.Select(x => x.DefectName.ToLower().Trim()).ToList();
             int index = 0;
             foreach (var defectName in defectNames)
             {
-                var d = IGetDefects().FirstOrDefault(d => d.DefectName.Contains(defectName));
+                var d = IGetDefects().FirstOrDefault(d => d.DefectName.ToLower().Trim().Contains(defectName));
                 if (d != null)
                 {
                     defects.RemoveAt(index);
@@ -78,8 +80,11 @@ namespace RepairBox.BL.Services
         public async Task DeleteDefect(int defectId)
         {
             var defect = _context.RepairableDefects.FirstOrDefault(d => d.Id == defectId);
-            defect.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            if (defect != null)
+            {
+                _context.RepairableDefects.Remove(defect);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public GetDefectDTO? GetDefect(int defectId)
@@ -102,7 +107,7 @@ namespace RepairBox.BL.Services
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
             var defectQuery = _context.RepairableDefects.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.ToLower().Contains(query.ToLower()) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
@@ -117,7 +122,7 @@ namespace RepairBox.BL.Services
         {
             List<GetDefectDTO> defectList = new List<GetDefectDTO>();
             var defectQuery = _context.RepairableDefects.AsQueryable();
-            var defects = defectQuery.Where(d => query != null ? d.DefectName.StartsWith(query) : true && d.ModelId == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var defects = defectQuery.Where(d => query != null ? d.DefectName.ToLower().Contains(query.ToLower()) : true && d.ModelId == modelId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             defects.ForEach(defect => defectList.Add(Omu.ValueInjecter.Mapper.Map<GetDefectDTO>(defect)));
 
             return new PaginationModel
@@ -135,6 +140,35 @@ namespace RepairBox.BL.Services
             defect.RepairTime = data.RepairTime;
             defect.Cost = data.Cost;
             defect.Price = data.Price;
+            await _context.SaveChangesAsync();
+        }
+
+        public IQueryable<SelectListItem> GetDefects(int modelId)
+        {
+            var models = _context.RepairableDefects.Where(b => b.ModelId == modelId).Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = b.DefectName
+            });
+
+            return models;
+        }
+
+        public async Task AddDefect(AddDefectDTO data)
+        {
+
+            await _context.RepairableDefects.AddAsync(new RepairableDefect
+            {
+                DefectName = data.Title,
+                Cost = ConversionHelper.ConvertToDecimal(data.Cost),
+                Price = ConversionHelper.ConvertToDecimal(data.Price),
+                RepairTime = data.Time,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false,
+                ModelId = data.ModelId
+            });
+
             await _context.SaveChangesAsync();
         }
     }

@@ -11,5 +11,6 @@ namespace RepairBox.BL.DTOs.Model
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string ModelName { get; set; } = string.Empty;
+        public int BrandId { get; set; }
     }
 }

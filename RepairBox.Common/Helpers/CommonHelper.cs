@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
+using IronBarCode;
 
 namespace RepairBox.Common.Helpers
 {
@@ -15,7 +16,8 @@ namespace RepairBox.Common.Helpers
         private const int SaltSize = 16; // Choose an appropriate salt size
         private const int HashSize = 32; // Choose an appropriate hash size
         private const int Iterations = 10000; // Choose an appropriate number of iterations
-
+        private static Random random = new Random();
+        
         public static double TotalPagesforPagination(int total, int pageSize)
         {
             double.TryParse(pageSize.ToString(), out double newPageSize);
@@ -88,6 +90,22 @@ namespace RepairBox.Common.Helpers
             }
 
             return JsonSerializer.Serialize(claimDictionary);
+        }
+        public static long RandomLongValueGenerator(long minValue, long maxValue)
+        {
+            long value;
+
+            byte[] buffer = new byte[8];
+            random.NextBytes(buffer);
+
+            long longRand = BitConverter.ToInt64(buffer, 0);
+            value = Math.Abs(longRand % (maxValue - minValue)) + minValue;
+
+            return value;
+        }
+        public static void GenerateQRCode(string data, string path)
+        {
+            QRCodeWriter.CreateQrCode(data, 500, QRCodeWriter.QrErrorCorrectionLevel.Medium).SaveAsPng(path);
         }
     }
 }

@@ -15,10 +15,12 @@ namespace RepairBox.BL.Services
 {
     public interface IModelServiceRepo
     {
+        Task AddModel(AddModelDTO data);
         Task AddModels(List<AddModelDTO> datum, int brandId);
         Task DeleteModel(int brandId);
         Task UpdateModel(UpdateModelDTO data);
         IQueryable<SelectListItem> GetModels();
+        IQueryable<SelectListItem> GetModels(int brandId);
         GetModelDTO? GetModel(int modelId);
         PaginationModel GetModels(string query, int pageNo);
         PaginationModel GetModelsByBrandId(string query, int pageNo, int brandId);
@@ -47,11 +49,12 @@ namespace RepairBox.BL.Services
                     BrandId = brandId
                 });
             }
-            var modelNames = models.Select(x => x.ModelName).ToList();
+
+            var modelNames = models.Select(x => x.ModelName.ToLower().Trim()).ToList();
             int index = 0;
             foreach (var modelName in modelNames)
             {
-                var d = IGetModels().FirstOrDefault(d => d.ModelName.Contains(modelName));
+                var d = IGetModels().FirstOrDefault(d => d.ModelName.ToLower().Trim().Contains(modelName));
                 if (d != null)
                 {
                     models.RemoveAt(index);
@@ -76,8 +79,11 @@ namespace RepairBox.BL.Services
         public async Task DeleteModel(int modelId)
         {
             var model = _context.Models.FirstOrDefault(m => m.Id == modelId);
-            model.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            if (model != null)
+            {
+                _context.Models.Remove(model);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public GetModelDTO? GetModel(int modelId)
@@ -102,7 +108,7 @@ namespace RepairBox.BL.Services
             var models = _context.Models.Select(b => new SelectListItem
             {
                 Value = b.Id.ToString(),
-                Text = b.ModelName
+                Text = $"{b.Name} {b.ModelName}"
             });
 
             return models;
@@ -112,7 +118,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.ModelName.StartsWith(query) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.ModelName.ToLower().Contains(query.ToLower()) : true).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
@@ -127,7 +133,7 @@ namespace RepairBox.BL.Services
         {
             List<GetModelDTO> modelList = new List<GetModelDTO>();
             var modelQuery = _context.Models.AsQueryable();
-            var models = modelQuery.Where(b => query != null ? b.ModelName.StartsWith(query) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var models = modelQuery.Where(b => query != null ? b.ModelName.ToLower().Contains(query.ToLower()) : true && b.BrandId == brandId).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             models.ForEach(model => modelList.Add(Omu.ValueInjecter.Mapper.Map<GetModelDTO>(model)));
 
             return new PaginationModel
@@ -143,6 +149,32 @@ namespace RepairBox.BL.Services
             var model = _context.Models.FirstOrDefault(m => m.Id == data.Id);
             model.Name = data.Name;
             model.ModelName = data.ModelName;
+            model.BrandId = data.BrandId;
+            await _context.SaveChangesAsync();
+        }
+
+        public IQueryable<SelectListItem> GetModels(int brandId)
+        {
+            var models = _context.Models.Where(b => b.BrandId == brandId).Select(b => new SelectListItem
+            {
+                Value = b.Id.ToString(),
+                Text = $"{b.Name} {b.ModelName}"
+            });
+
+            return models;
+        }
+
+        public async Task AddModel(AddModelDTO data)
+        {
+            await _context.Models.AddAsync(new Model
+            {
+                Name = data.Name,
+                ModelName = data.Model,
+                CreatedAt = DateTime.Now,
+                IsActive = true,
+                IsDeleted = false,
+                BrandId = data.BrandId
+            });
             await _context.SaveChangesAsync();
         }
     }

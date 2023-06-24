@@ -12,5 +12,6 @@ namespace RepairBox.BL.DTOs.RepairDefect
         public string Price { get; set; }
         public string Cost { get; set; }
         public string Time { get; set; }
+        public int ModelId { get; set; }
     }
 }

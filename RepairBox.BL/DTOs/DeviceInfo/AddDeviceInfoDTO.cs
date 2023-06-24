@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RepairBox.BL.DTOs.RepairDefect
+namespace RepairBox.BL.DTOs.DeviceInfo
 {
-    public class GetDefectDTO
+    public class AddDeviceInfoDTO
     {
-        public int Id { get; set; }
-        public string DefectName { get; set; }
-        public string RepairTime { get; set; }
+        public string DeviceNameModel { get; set; }
+        public string IMEI { get; set; }
+        public string SerialNumber { get; set; }
         public decimal Cost { get; set; }
         public decimal Price { get; set; }
     }

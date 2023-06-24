@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RepairBox.BL.DTOs.Model
+namespace RepairBox.BL.DTOs.Company
 {
-    public class AddModelDTO
+    public class GetCompanyDTO
     {
         public string Name { get; set; }
-        public string Model { get; set; }
-        public int BrandId { get; set; }
+        public string Phone { get; set; }
+        public string Address { get; set; }
     }
 }

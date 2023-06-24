@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepairBox.DAL;
 
@@ -11,9 +12,10 @@ using RepairBox.DAL;
 namespace RepairBox.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230607165152_Updated CustomerIdentities")]
+    partial class UpdatedCustomerIdentities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,40 +48,6 @@ namespace RepairBox.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Brands");
-                });
-
-            modelBuilder.Entity("RepairBox.DAL.Entities.Company", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.CustomerIdentities", b =>
@@ -351,66 +319,6 @@ namespace RepairBox.DAL.Migrations
 
                     b.ToTable("OrderDefects");
                 });
-            modelBuilder.Entity("RepairBox.DAL.Entities.Permission", b =>
-            {
-                b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                b.Property<DateTime>("CreatedAt")
-                    .HasColumnType("datetime2");
-
-                b.Property<bool>("IsActive")
-                    .HasColumnType("bit");
-
-                b.Property<bool>("IsDeleted")
-                    .HasColumnType("bit");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasColumnType("nvarchar(max)");
-
-                b.HasKey("Id");
-
-                b.ToTable("Permissions");
-            });
-            modelBuilder.Entity("RepairBox.DAL.Entities.PurchaseFromCustomerInvoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-                        
-                    b.Property<int>("CustomerInfoId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-                    
-                    b.Property<string>("QRCodePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("invoiceId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerInfoId");
-
-                    b.ToTable("PurchaseFromCustomerInvoices");
 
             modelBuilder.Entity("RepairBox.DAL.Entities.RepairableDefect", b =>
                 {
@@ -508,7 +416,7 @@ namespace RepairBox.DAL.Migrations
                     b.ToTable("RepairStatuses");
                 });
 
-            modelBuilder.Entity("RepairBox.DAL.Entities.Resource", b =>
+            modelBuilder.Entity("RepairBox.DAL.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -529,14 +437,9 @@ namespace RepairBox.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("Resources");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Setting", b =>
@@ -630,25 +533,11 @@ namespace RepairBox.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("TokenCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TokenExpires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserRoleId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
@@ -657,68 +546,32 @@ namespace RepairBox.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserRoleId");
+                    b.HasIndex("RoleId")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
-            modelBuilder.Entity("RepairBox.DAL.Entities.UserRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("RepairBox.DAL.Entities.UserRole_Permission", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
-
-                    b.HasKey("RoleId", "PermissionId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("UserRole_Permissions");
-                }
             modelBuilder.Entity("RepairBox.DAL.Entities.CustomerIdentities", b =>
                 {
-                    b.HasOne("RepairBox.DAL.Entities.CustomerInfo", null)
-                        .WithMany("CustomerIdentities")
+                    b.HasOne("RepairBox.DAL.Entities.CustomerInfo", "CustomerInfo")
+                        .WithMany()
                         .HasForeignKey("CustomerInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CustomerInfo");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.DeviceInfo", b =>
                 {
-                    b.HasOne("RepairBox.DAL.Entities.CustomerInfo", null)
-                        .WithMany("DeviceInfos")
+                    b.HasOne("RepairBox.DAL.Entities.CustomerInfo", "CustomerInfo")
+                        .WithMany()
                         .HasForeignKey("CustomerInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CustomerInfo");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Model", b =>
@@ -748,15 +601,6 @@ namespace RepairBox.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RepairBox.DAL.Entities.PurchaseFromCustomerInvoice", b =>
-                {
-                    b.HasOne("RepairBox.DAL.Entities.CustomerInfo", null)
-                        .WithMany("PurchaseFromCustomerInvoices")
-                        .HasForeignKey("CustomerInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("RepairBox.DAL.Entities.RepairableDefect", b =>
                 {
                     b.HasOne("RepairBox.DAL.Entities.Model", null)
@@ -766,59 +610,18 @@ namespace RepairBox.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RepairBox.DAL.Entities.Resource", b =>
-                {
-                    b.HasOne("RepairBox.DAL.Entities.Permission", "Permission")
-                        .WithMany("Resources")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-                });
-
             modelBuilder.Entity("RepairBox.DAL.Entities.User", b =>
                 {
-                    b.HasOne("RepairBox.DAL.Entities.UserRole", "UserRole")
-                        .WithMany("Users")
-                        .HasForeignKey("UserRoleId")
+                    b.HasOne("RepairBox.DAL.Entities.Role", null)
+                        .WithOne("User")
+                        .HasForeignKey("RepairBox.DAL.Entities.User", "RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("UserRole");
-                });
-
-            modelBuilder.Entity("RepairBox.DAL.Entities.UserRole_Permission", b =>
-                {
-                    b.HasOne("RepairBox.DAL.Entities.Permission", "Permission")
-                        .WithMany("UserRole_Permissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RepairBox.DAL.Entities.UserRole", "Role")
-                        .WithMany("UserRole_Permissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Brand", b =>
                 {
                     b.Navigation("Models");
-                });
-
-            modelBuilder.Entity("RepairBox.DAL.Entities.CustomerInfo", b =>
-                {
-                    b.Navigation("CustomerIdentities");
-
-                    b.Navigation("DeviceInfos");
-
-                    b.Navigation("PurchaseFromCustomerInvoices");
                 });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.Model", b =>
@@ -833,18 +636,10 @@ namespace RepairBox.DAL.Migrations
                     b.Navigation("OrderDefects");
                 });
 
-            modelBuilder.Entity("RepairBox.DAL.Entities.Permission", b =>
+            modelBuilder.Entity("RepairBox.DAL.Entities.Role", b =>
                 {
-                    b.Navigation("Resources");
-
-                    b.Navigation("UserRole_Permissions");
-                });
-
-            modelBuilder.Entity("RepairBox.DAL.Entities.UserRole", b =>
-                {
-                    b.Navigation("UserRole_Permissions");
-
-                    b.Navigation("Users");
+                    b.Navigation("User")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
