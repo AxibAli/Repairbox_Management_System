@@ -386,7 +386,7 @@ namespace RepairBox.DAL.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-                        
+
                     b.Property<int>("CustomerInfoId")
                         .HasColumnType("int");
 
@@ -398,7 +398,7 @@ namespace RepairBox.DAL.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-                    
+
                     b.Property<string>("QRCodePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -411,6 +411,7 @@ namespace RepairBox.DAL.Migrations
                     b.HasIndex("CustomerInfoId");
 
                     b.ToTable("PurchaseFromCustomerInvoices");
+                });
 
             modelBuilder.Entity("RepairBox.DAL.Entities.RepairableDefect", b =>
                 {
@@ -661,6 +662,7 @@ namespace RepairBox.DAL.Migrations
 
                     b.ToTable("Users");
                 });
+
             modelBuilder.Entity("RepairBox.DAL.Entities.UserRole", b =>
                 {
                     b.Property<int>("Id")
@@ -702,7 +704,8 @@ namespace RepairBox.DAL.Migrations
                     b.HasIndex("PermissionId");
 
                     b.ToTable("UserRole_Permissions");
-                }
+                });
+
             modelBuilder.Entity("RepairBox.DAL.Entities.CustomerIdentities", b =>
                 {
                     b.HasOne("RepairBox.DAL.Entities.CustomerInfo", null)
