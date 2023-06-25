@@ -130,12 +130,6 @@ namespace RepairBox.API.Controllers
                     return Unauthorized();
                 }
 
-                var refreshToken = _userRepo.GetRefreshToken(userEmail);
-                if(refreshToken.Token == "")
-                {
-                    return Unauthorized();
-                }
-
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.USER_LOGGED_IN, Data = userEmail });
             }
             catch (Exception ex)

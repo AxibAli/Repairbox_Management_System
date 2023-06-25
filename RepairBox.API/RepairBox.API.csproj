@@ -21,7 +21,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.18" />
     <PackageReference Include="BarCode" Version="2023.6.1" />
     <PackageReference Include="BarcodeLib" Version="3.0.0" />
-    <PackageReference Include="IronPdf" Version="2023.6.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
       <PrivateAssets>all</PrivateAssets>
