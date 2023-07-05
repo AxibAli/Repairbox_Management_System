@@ -109,6 +109,27 @@ namespace RepairBox.API.Controllers
             }
         }
 
+        [HttpPost("VerifyCredentials")]
+        public IActionResult VerifyCredentials(UserLoginDTO userLogin)
+        {
+            try
+            {
+                bool response = _userRepo.VerifyUserLogin(userLogin);
+                if (response)
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.CORRECT_CREDENTIALS });
+                }
+                else
+                {
+                    return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, Message = CustomMessage.INCORRECT_CREDENTIALS });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
         [HttpGet("IsLoggedIn")]
         [Authorize]
         public IActionResult IsLoggedIn()

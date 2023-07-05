@@ -10,9 +10,11 @@ namespace RepairBox.DAL.Entities
     public class User : Base
     {
         public string Username { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string PasswordSalt { get; set; } = string.Empty;
+        public string AvatarPath { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime? TokenCreated { get; set; }
         public DateTime? TokenExpires { get; set; }

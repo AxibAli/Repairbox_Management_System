@@ -13,9 +13,9 @@ namespace RepairBox.Common.Helpers
 {
     public class CommonHelper
     {
-        private const int SaltSize = 16; // Choose an appropriate salt size
-        private const int HashSize = 32; // Choose an appropriate hash size
-        private const int Iterations = 10000; // Choose an appropriate number of iterations
+        private const int SaltSize = 16;
+        private const int HashSize = 32;
+        private const int Iterations = 10000;
         private static Random random = new Random();
         
         public static double TotalPagesforPagination(int total, int pageSize)

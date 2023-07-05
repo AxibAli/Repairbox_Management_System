@@ -40,7 +40,18 @@ namespace RepairBox.BL.Services
 
             if (userList == null) { return null; }
 
-            userList.ForEach(user => users.Add(Omu.ValueInjecter.Mapper.Map<GetUserDTO>(user)));
+            var roleIds = userList.Select(u => u.UserRoleId).ToList();
+            var roles = _context.Roles.Where(r => roleIds.Contains(r.Id)).ToList();
+
+            userList.ForEach(user =>
+            {
+                var getUserDto = Omu.ValueInjecter.Mapper.Map<GetUserDTO>(user);
+                var userRole = roles.FirstOrDefault(r => r.Id == user.UserRoleId);
+                getUserDto.UserRoleName = userRole?.Name ?? string.Empty;
+                users.Add(getUserDto);
+            });
+
+            //userList.ForEach(user => users.Add(Omu.ValueInjecter.Mapper.Map<GetUserDTO>(user)));
 
             return users;
         }
@@ -127,6 +138,8 @@ namespace RepairBox.BL.Services
             {
                 user.Username = userDTO.Username;
                 user.Email = userDTO.Email;
+                user.Phone = userDTO.Phone;
+                user.AvatarPath = userDTO.AvatarPath;
 
                 _context.SaveChanges();
             }
