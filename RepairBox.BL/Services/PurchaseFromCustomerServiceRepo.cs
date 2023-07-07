@@ -1,9 +1,12 @@
-﻿using RepairBox.BL.DTOs.CustomerIdentities;
+﻿using Microsoft.EntityFrameworkCore;
+using RepairBox.BL.DTOs.CustomerIdentities;
 using RepairBox.BL.DTOs.CustomerInfo;
 using RepairBox.BL.DTOs.CustomerProductPurchase;
 using RepairBox.BL.DTOs.DeviceInfo;
 using RepairBox.BL.DTOs.Model;
+using RepairBox.BL.DTOs.PurchaseFromCustomer;
 using RepairBox.BL.DTOs.PurchaseFromCustomerInvoiceDTOs;
+using RepairBox.Common.Helpers;
 using RepairBox.DAL;
 using RepairBox.DAL.Entities;
 using Stripe;
@@ -19,6 +22,7 @@ namespace RepairBox.BL.Services
     public interface IPurchaseFromCustomerServiceRepo
     {
         public GetInvoiceDataDTO? GetPurchaseFromCustomerInvoice(long id);
+        public PaginationModel GetPurchaseFromCustomerListing(int pageNo, string? query);
         public int AddPurchaseFromCustomer(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
         public void AddPurchaseFromCustomerInvoice(AddPurchaseFromCustomerInvoiceDTO purchaseFromCustomerInvoiceDTO);
         public bool DeletePurchaseFromCustomer(long id);
@@ -48,6 +52,48 @@ namespace RepairBox.BL.Services
             }
 
             return null;
+        }
+        public PaginationModel GetPurchaseFromCustomerListing(int pageNo, string? query)
+        {
+            var purchaseFromCustomerList = _context.PurchaseFromCustomerInvoices
+                .Join(
+                    _context.CustomerInfos,
+                    invoice => invoice.CustomerInfoId,
+                    customer => customer.Id,
+                    (invoice, customer) => new { Invoice = invoice, Customer = customer }
+                )
+                .Join(
+                    _context.DeviceInfos,
+                    joinResult => joinResult.Customer.Id,
+                    deviceInfo => deviceInfo.CustomerInfoId,
+                    (joinResult, deviceInfo) => new { joinResult.Invoice, joinResult.Customer, DeviceInfo = deviceInfo }
+                )
+                .Select(result => new GetPurchaseFromCustomerDTO
+                {
+                    Id = result.Invoice.Id,
+                    InvoiceId = result.Invoice.invoiceId,
+                    CustomerName = result.Customer.Name,
+                    CustomerEmail = result.Customer.Email,
+                    DeviceNameModel = result.DeviceInfo.DeviceNameModel,
+                    DeviceIMEI = result.DeviceInfo.IMEI,
+                    DeviceSerialNumber = result.DeviceInfo.SerialNumber,
+                    DeviceCost = result.DeviceInfo.Cost,
+                    DevicePrice = result.DeviceInfo.Price,
+                    Date = result.Invoice.Date,
+                    QRCodePath = result.Invoice.QRCodePath
+                })
+                .ToList();
+
+            var TotalPages = purchaseFromCustomerList.Count;
+
+            purchaseFromCustomerList = purchaseFromCustomerList.Skip(pageNo * 10).Take(10).ToList();
+
+            return new PaginationModel
+            {
+                TotalPages = CommonHelper.TotalPagesforPagination(TotalPages, 10),
+                CurrentPage = pageNo,
+                Data = purchaseFromCustomerList
+            };
         }
         public int AddPurchaseFromCustomer(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO)
         {

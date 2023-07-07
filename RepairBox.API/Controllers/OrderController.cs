@@ -294,11 +294,11 @@ namespace RepairBox.API.Controllers
         }
 
         [HttpGet("GetOrderList")]
-        public IActionResult GetOrderList()
+        public IActionResult GetOrderList(int pageNo, string? query)
         {
             try
             {
-                var data = _orderRepo.GetOrderList();
+                var data = _orderRepo.GetOrderList(pageNo, query);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)

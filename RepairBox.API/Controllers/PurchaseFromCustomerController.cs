@@ -11,6 +11,8 @@ using System.Web;
 using System.Text;
 using RepairBox.BL.DTOs.PurchaseFromCustomer;
 using RepairBox.Common.Helpers;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RepairBox.API.Controllers
 {
@@ -33,6 +35,20 @@ namespace RepairBox.API.Controllers
             {
                 long id = ConversionHelper.ConvertToInt64(invoiceId);
                 var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerInvoice(id);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpGet("GetPurchaseFromCustomer")]
+        public IActionResult GetPurchaseFromCustomer(int pageNo, string? query)
+        {
+            try
+            {
+                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerListing(pageNo, query);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)
@@ -85,6 +101,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
+
         [HttpGet("DeletePurchaseFromCustomer")]
         public IActionResult DeletePurchaseFromCustomer(string invoiceId)
         {
@@ -106,6 +123,7 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
+
         [HttpPost("UpdatePurchaseFromCustomer")]
         public IActionResult UpdatePurchaseFromCustomer(UpdatePurchaseFromCustomerDTO updatePurchaseFromCustomer)
         {
