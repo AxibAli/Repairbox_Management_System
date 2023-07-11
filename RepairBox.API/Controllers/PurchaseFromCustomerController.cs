@@ -28,6 +28,24 @@ namespace RepairBox.API.Controllers
             _companyServiceRepo = companyServiceRepo;
         }
 
+        [HttpGet("GetPurchaseFromCustomerFilterSortDropdown")]
+        public IActionResult GetPurchaseFromCustomerFilterSortDropdown()
+        {
+            try
+            {
+                var FilterSortDropdown = new List<string>
+                {
+                    "Order Number", "Invoice ID", "Full name", "Phone", "Email", "IMEI", "Serial number", "Created at"
+                };
+
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = FilterSortDropdown });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
         [HttpGet("GetPurchaseFromCustomerInvoice")]
         public IActionResult GetPurchaseFromCustomerInvoice(string invoiceId)
         {
@@ -43,12 +61,12 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpGet("GetPurchaseFromCustomer")]
-        public IActionResult GetPurchaseFromCustomer(int pageNo, string? query)
+        [HttpGet("GetPurchasesFromCustomers")]
+        public IActionResult GetPurchasesFromCustomers(int pageNo, string sortBy, bool isSortAscending, int pageSize, string? searchKeyword = "")
         {
             try
             {
-                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerListing(pageNo, query);
+                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerListings(pageNo, searchKeyword, sortBy, isSortAscending, pageSize);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)
