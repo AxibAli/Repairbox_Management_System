@@ -292,5 +292,19 @@ namespace RepairBox.API.Controllers
                 return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
             }
         }
+
+        [HttpGet("GetOrderList")]
+        public IActionResult GetOrderList(int pageNo, string? query)
+        {
+            try
+            {
+                var data = _orderRepo.GetOrderList(pageNo, query);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
     }
 }

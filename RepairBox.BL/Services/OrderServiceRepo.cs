@@ -1,7 +1,10 @@
-﻿using RepairBox.BL.DTOs.Order;
+﻿using Microsoft.EntityFrameworkCore;
+using RepairBox.BL.DTOs.Order;
 using RepairBox.BL.DTOs.Stripe;
+using RepairBox.BL.DTOs.User;
 using RepairBox.BL.ServiceModels.Order;
 using RepairBox.Common.Commons;
+using RepairBox.Common.Helpers;
 using RepairBox.DAL;
 using RepairBox.DAL.Entities;
 using System;
@@ -16,6 +19,7 @@ namespace RepairBox.BL.Services
     {
         CalculateOrderAmountDTO CalculateOrder(GetOrderChargesDTO model);
         Task CreateOrder(AddOrderDTO model);
+        PaginationModel GetOrderList(int pageNo, string? query);
     }
 
     public class OrderServiceRepo : IOrderServiceRepo
@@ -104,7 +108,46 @@ namespace RepairBox.BL.Services
                 throw new Exception(ex.Message);
             }
         }
+        public PaginationModel GetOrderList(int pageNo, string? query)
+        {
+            var orderList = _context.Orders
+                .Join(_context.Models, order => order.ModelId, model => model.Id, (order, model) => new { Order = order, Model = model })
+                .Join(_context.Brands, joinResult => joinResult.Model.BrandId, brand => brand.Id, (joinResult, brand) => new { joinResult.Order, joinResult.Model, Brand = brand })
+                .Join(_context.Users, joinResult => joinResult.Order.TechnicianId, technician => technician.Id, (joinResult, technician) => new { joinResult.Order, joinResult.Model, joinResult.Brand, Technician = technician })
+                .Join(_context.RepairPriorities, joinResult => joinResult.Order.PriorityId, priority => priority.Id, (joinResult, priority) => new { joinResult.Order, joinResult.Model, joinResult.Brand, joinResult.Technician, Priority = priority })
+                .Join(_context.RepairStatuses, joinResult => joinResult.Order.StatusId, status => status.Id, (joinResult, status) => new { joinResult.Order, joinResult.Model, joinResult.Brand, joinResult.Technician, joinResult.Priority, Status = status })
+                .Select(result => new GetOrderDTO
+                {
+                    Id = result.Order.Id,
+                    Name = result.Order.Name,
+                    Email = result.Order.Email,
+                    Phone = result.Order.Phone,
+                    SerialNumber = result.Order.SerialNumber,
+                    Address = result.Order.Address,
+                    Diagnostics = result.Order.Diagnostics,
+                    BrandName = result.Brand.Name,
+                    ModelId = result.Model.Id,
+                    ModelName = result.Model.Name,
+                    TechnicianId = result.Technician.Id,
+                    TechnicianName = result.Technician.Username,
+                    PriorityId = result.Priority.Id,
+                    PriorityName = result.Priority.Name,
+                    StatusId = result.Status.Id,
+                    StatusName = result.Status.Name
+                })
+                .ToList();
 
+            var TotalPages = orderList.Count;
+
+            orderList = orderList.Skip(pageNo * 10).Take(10).ToList();
+
+            return new PaginationModel
+            {
+                TotalPages = CommonHelper.TotalPagesforPagination(TotalPages, 10),
+                CurrentPage = pageNo,
+                Data = orderList
+            };
+        }
         // Private Method
         private void AddTransaction(Transaction transaction)
         {
