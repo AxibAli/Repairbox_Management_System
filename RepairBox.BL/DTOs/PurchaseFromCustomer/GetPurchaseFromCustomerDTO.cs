@@ -12,6 +12,7 @@ namespace RepairBox.BL.DTOs.PurchaseFromCustomer
         public long InvoiceId { get; set; }
         public string CustomerName { get; set; } = string.Empty;
         public string CustomerEmail { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
         public string DeviceNameModel { get; set; } = string.Empty;
         public string DeviceIMEI { get; set; } = string.Empty;
         public string DeviceSerialNumber { get; set; } = string.Empty;
