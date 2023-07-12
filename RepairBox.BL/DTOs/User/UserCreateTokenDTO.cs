@@ -13,6 +13,7 @@ namespace RepairBox.BL.DTOs.User
         public string Email { get; set; }
         public string Role { get; set; }
         public Dictionary<string, bool>? Resources { get; set; }
+        public List<string> Permissions { get; set; }
         public string? Token { get; set; }
     }
 }

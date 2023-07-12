@@ -76,14 +76,23 @@ namespace RepairBox.BL.Services
 
             var role = _context.Roles.FirstOrDefault(r => r.Id == user.UserRoleId);
 
-            var permissionIds = _context.UserRole_Permissions
+            var permissions = _context.UserRole_Permissions
                 .Where(urp => urp.RoleId == role.Id)
-                .Select(urp => urp.PermissionId)
-                .ToList();
+                .Select(urp => new { urp.PermissionId, urp.Permission.Name })
+                .ToDictionary(urp => urp.PermissionId, urp => urp.Name);
+
+            List<int> permissionIds = new List<int>();
+            List<string> permissionNames = new List<string>();
+
+            foreach (var permission in permissions)
+            {
+                permissionIds.Add(permission.Key);
+                permissionNames.Add(permission.Value);
+            }
 
             var resources = _context.Resources
-                .Select(r => new { Resource = r, HasPermission = permissionIds.Contains(r.PermissionId) })
-                .ToDictionary(r => r.Resource.Name, r => r.HasPermission);
+               .Select(r => new { Resource = r, HasPermission = permissionIds.Contains(r.PermissionId) })
+               .ToDictionary(r => r.Resource.Name, r => r.HasPermission);
 
             var userRoleResources = new UserCreateTokenDTO
             {
@@ -91,6 +100,7 @@ namespace RepairBox.BL.Services
                 Email = email,
                 Role = role.Name,
                 Resources = resources,
+                Permissions = permissionNames,
                 Token = null
             };
 
