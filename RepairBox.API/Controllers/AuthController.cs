@@ -10,6 +10,7 @@ using RepairBox.API.Models;
 using RepairBox.BL.DTOs.User;
 using RepairBox.BL.Services;
 using RepairBox.Common.Commons;
+using Stripe;
 
 namespace RepairBox.API.Controllers
 {
@@ -144,14 +145,22 @@ namespace RepairBox.API.Controllers
                     return Unauthorized();
                 }
 
+                var userPermissions = _userRepo.GetMyPermissions();
+
+                if(userPermissions == null) { return Unauthorized(); }
+
+                if (!userPermissions.ContainsKey("IsLoggedIn")) { return NotFound(); }
+
+                if (!userPermissions["IsLoggedIn"]) { return Unauthorized(); }
+
                 var userEmail = _userRepo.GetMyEmail();
 
-                if(userEmail == null)
+                if (userEmail == null)
                 {
                     return Unauthorized();
                 }
 
-                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.USER_LOGGED_IN, Data = userEmail });
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Message = CustomMessage.USER_LOGGED_IN, Data = userPermissions });
             }
             catch (Exception ex)
             {

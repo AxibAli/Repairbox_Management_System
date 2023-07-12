@@ -5,6 +5,7 @@ using RepairBox.Common.Helpers;
 using RepairBox.DAL;
 using RepairBox.DAL.Entities;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace RepairBox.BL.Services
 {
@@ -20,6 +21,7 @@ namespace RepairBox.BL.Services
         bool DeleteUser(int id);
         (string, bool) ChangePassword(UserChangePasswordDTO changePasswordDTO);
         string GetMyEmail();
+        Dictionary<string, bool>? GetMyPermissions();
         void SetRefreshToken(string email, RefreshToken refreshToken);
         RefreshToken GetRefreshToken(string email);
         void ClearRefreshToken(string userEmail);
@@ -215,6 +217,22 @@ namespace RepairBox.BL.Services
                 }
             }
             return result;
+        }
+
+        public Dictionary<string, bool>? GetMyPermissions()
+        {
+            var result = string.Empty;
+            Dictionary<string,bool>? permissions = null;
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                var userDataClaim = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.UserData);
+                if (userDataClaim != null)
+                {
+                    result = userDataClaim.Value;
+                    permissions = JsonSerializer.Deserialize<Dictionary<string, bool>>(result);
+                }
+            }
+            return permissions;
         }
 
         public void SetRefreshToken(string email, RefreshToken refreshToken)
