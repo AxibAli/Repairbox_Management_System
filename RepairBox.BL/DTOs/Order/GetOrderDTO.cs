@@ -24,5 +24,9 @@ namespace RepairBox.BL.DTOs.Order
         public string PriorityName { get; set; } = string.Empty;
         public int StatusId { get; set; }
         public string StatusName { get; set; } = string.Empty;
+        public decimal AmountPaid { get; set; }
+        public bool WarrantyStatus { get; set; }
+        public CalculateOrderAmountDTO? OrderAmount { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

@@ -293,12 +293,43 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpGet("GetOrderList")]
-        public IActionResult GetOrderList(int pageNo, string? query)
+        [HttpGet("GetOrderFilterSortDropdown")]
+        public IActionResult GetOrderFilterSortDropdown()
         {
             try
             {
-                var data = _orderRepo.GetOrderList(pageNo, query);
+                var FilterSortDropdown = new List<string>
+                {
+                    "Status", "Priority", "Technician", "Created at", "Order Number"
+                };
+
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = FilterSortDropdown });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpGet("GetOrderList")]
+        public IActionResult GetOrderList(int pageNo)
+        {
+            try
+            {
+                var data = _orderRepo.GetOrderList(pageNo, null);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+        [HttpPost("GetOrderListWithFilters")]
+        public IActionResult GetOrderListWithFilters([FromQuery] int pageNo, [FromBody] DisplayOrderFiltersDTO orderFilters)
+        {
+            try
+            {
+                var data = _orderRepo.GetOrderList(pageNo, orderFilters);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)

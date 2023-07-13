@@ -13,6 +13,7 @@ using RepairBox.BL.DTOs.PurchaseFromCustomer;
 using RepairBox.Common.Helpers;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using RepairBox.BL.DTOs.Order;
 
 namespace RepairBox.API.Controllers
 {
@@ -61,12 +62,26 @@ namespace RepairBox.API.Controllers
             }
         }
 
-        [HttpGet("GetPurchasesFromCustomers")]
-        public IActionResult GetPurchasesFromCustomers(int pageNo, string sortBy, bool isSortAscending, int pageSize, string? searchKeyword = "")
+        [HttpGet("GetPurchasesFromCustomersList")]
+        public IActionResult GetPurchasesFromCustomersList(int pageNo)
         {
             try
             {
-                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerListings(pageNo, searchKeyword, sortBy, isSortAscending, pageSize);
+                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerListings(pageNo, null);
+                return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new JSONResponse { Status = ResponseMessage.FAILURE, ErrorMessage = ex.Message, ErrorDescription = ex?.InnerException?.ToString() ?? string.Empty });
+            }
+        }
+
+        [HttpPost("GetPurchasesFromCustomersListWithFilters")]
+        public IActionResult GetPurchasesFromCustomersListWithFilters([FromQuery] int pageNo, [FromBody] DisplayPurchaseFromCustomerFiltersDTO pfcFilters)
+        {
+            try
+            {
+                var data = _purchaseFromCustomerRepo.GetPurchaseFromCustomerListings(pageNo, pfcFilters);
                 return Ok(new JSONResponse { Status = ResponseMessage.SUCCESS, Data = data });
             }
             catch (Exception ex)

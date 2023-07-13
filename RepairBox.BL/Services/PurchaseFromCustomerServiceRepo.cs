@@ -12,6 +12,7 @@ using RepairBox.DAL.Entities;
 using Stripe;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace RepairBox.BL.Services
     public interface IPurchaseFromCustomerServiceRepo
     {
         public GetInvoiceDataDTO? GetPurchaseFromCustomerInvoice(long id);
-        public PaginationModel GetPurchaseFromCustomerListings(int pageNo, string searchKeyword, string sortBy, bool isSortAscending, int pageSize);
+        public PaginationModel GetPurchaseFromCustomerListings(int pageNo, DisplayPurchaseFromCustomerFiltersDTO? pfcFilters);
         public int AddPurchaseFromCustomer(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO);
         public void AddPurchaseFromCustomerInvoice(AddPurchaseFromCustomerInvoiceDTO purchaseFromCustomerInvoiceDTO);
         public bool DeletePurchaseFromCustomer(long id);
@@ -53,7 +54,7 @@ namespace RepairBox.BL.Services
 
             return null;
         }
-        public PaginationModel GetPurchaseFromCustomerListings(int pageNo, string searchKeyword, string sortBy, bool isSortAscending, int pageSize)
+        public PaginationModel GetPurchaseFromCustomerListings(int pageNo, DisplayPurchaseFromCustomerFiltersDTO? pfcFilters)
         {
             var purchaseFromCustomerList = _context.PurchaseFromCustomerInvoices
                 .Join(
@@ -84,133 +85,109 @@ namespace RepairBox.BL.Services
                     QRCodePath = result.Invoice.QRCodePath
                 });
 
-            // Apply search filter
-            if (!string.IsNullOrEmpty(searchKeyword))
+            if (pfcFilters == null)
             {
-                purchaseFromCustomerList = purchaseFromCustomerList.Where(dto =>
-                    dto.CustomerName.Contains(searchKeyword) ||
-                    dto.CustomerEmail.Contains(searchKeyword) ||
-                    dto.DeviceNameModel.Contains(searchKeyword) ||
-                    dto.DeviceIMEI.Contains(searchKeyword) ||
-                    dto.DeviceSerialNumber.Contains(searchKeyword) ||
-                    dto.InvoiceId.ToString() == searchKeyword
-                );
-            }
+                var totalCount = purchaseFromCustomerList.Count();
 
-            // Apply sorting
-            if (!string.IsNullOrEmpty(sortBy))
-            {
-                switch (sortBy)
+                // Apply pagination
+                purchaseFromCustomerList = purchaseFromCustomerList.Skip((pageNo - 1) * 10).Take(10);
+
+                return new PaginationModel
                 {
-                    //case "Tracking":
-                    //    purchaseFromCustomerList = isSortAscending
-                    //        ? purchaseFromCustomerList.OrderBy(dto => dto.InvoiceId)
-                    //        : purchaseFromCustomerList.OrderByDescending(dto => dto.InvoiceId);
-                    //    break;
-                    case "Order Number":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.Id)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.Id);
-                        break;
-                    case "Invoice ID":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.InvoiceId)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.InvoiceId);
-                        break;
-                    case "Full name":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerName)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerName);
-                        break;
-                    case "Phone":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerPhone)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerPhone);
-                        break;
-                    case "Email":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerEmail)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerEmail);
-                        break;
-                    case "IMEI":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.DeviceIMEI)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.DeviceIMEI);
-                        break;
-                    case "Serial number":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.DeviceSerialNumber)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.DeviceSerialNumber);
-                        break;
-                    case "Created at":
-                        purchaseFromCustomerList = isSortAscending
-                            ? purchaseFromCustomerList.OrderBy(dto => dto.Date)
-                            : purchaseFromCustomerList.OrderByDescending(dto => dto.Date);
-                        break;
-                    default:
-                        throw new Exception("Invalid Sort By Value");
-                    //case "Updated at":
-                    //    purchaseFromCustomerList = isSortAscending
-                    //        ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerName)
-                    //        : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerName);
-                    //    break;
+                    TotalPages = CommonHelper.TotalPagesforPagination(totalCount, 10),
+                    CurrentPage = pageNo,
+                    Data = purchaseFromCustomerList.ToList()
+                };
+            }
+            else
+            {
+                // Apply search filter
+                if (!string.IsNullOrEmpty(pfcFilters.searchKeyword))
+                {
+                    purchaseFromCustomerList = purchaseFromCustomerList.Where(dto =>
+                        dto.CustomerName.Contains(pfcFilters.searchKeyword) ||
+                        dto.CustomerEmail.Contains(pfcFilters.searchKeyword) ||
+                        dto.DeviceNameModel.Contains(pfcFilters.searchKeyword) ||
+                        dto.DeviceIMEI.Contains(pfcFilters.searchKeyword) ||
+                        dto.DeviceSerialNumber.Contains(pfcFilters.searchKeyword) ||
+                        dto.InvoiceId.ToString() == pfcFilters.searchKeyword
+                    );
                 }
-            }
 
-            var totalCount = purchaseFromCustomerList.Count();
-
-            // Apply pagination
-            purchaseFromCustomerList = purchaseFromCustomerList.Skip((pageNo - 1) * pageSize).Take(pageSize);
-
-            return new PaginationModel
-            {
-                TotalPages = CommonHelper.TotalPagesforPagination(totalCount, pageSize),
-                CurrentPage = pageNo,
-                Data = purchaseFromCustomerList.ToList()
-            };
-        }
-        /* public PaginationModel GetPurchaseFromCustomerListings(int pageNo)
-        {
-            var purchaseFromCustomerList = _context.PurchaseFromCustomerInvoices
-                .Join(
-                    _context.CustomerInfos,
-                    invoice => invoice.CustomerInfoId,
-                    customer => customer.Id,
-                    (invoice, customer) => new { Invoice = invoice, Customer = customer }
-                )
-                .Join(
-                    _context.DeviceInfos,
-                    joinResult => joinResult.Customer.Id,
-                    deviceInfo => deviceInfo.CustomerInfoId,
-                    (joinResult, deviceInfo) => new { joinResult.Invoice, joinResult.Customer, DeviceInfo = deviceInfo }
-                )
-                .Select(result => new GetPurchaseFromCustomerDTO
+                // Apply sorting
+                if (!string.IsNullOrEmpty(pfcFilters.sortBy))
                 {
-                    Id = result.Invoice.Id,
-                    InvoiceId = result.Invoice.invoiceId,
-                    CustomerName = result.Customer.Name,
-                    CustomerEmail = result.Customer.Email,
-                    DeviceNameModel = result.DeviceInfo.DeviceNameModel,
-                    DeviceIMEI = result.DeviceInfo.IMEI,
-                    DeviceSerialNumber = result.DeviceInfo.SerialNumber,
-                    DeviceCost = result.DeviceInfo.Cost,
-                    DevicePrice = result.DeviceInfo.Price,
-                    Date = result.Invoice.Date,
-                    QRCodePath = result.Invoice.QRCodePath
-                })
-                .ToList();
+                    switch (pfcFilters.sortBy)
+                    {
+                        //case "Tracking":
+                        //    purchaseFromCustomerList = pfcFilters.isSortAscending
+                        //        ? purchaseFromCustomerList.OrderBy(dto => dto.InvoiceId)
+                        //        : purchaseFromCustomerList.OrderByDescending(dto => dto.InvoiceId);
+                        //    break;
+                        case "Order Number":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.Id)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.Id);
+                            break;
+                        case "Invoice ID":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.InvoiceId)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.InvoiceId);
+                            break;
+                        case "Full name":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerName)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerName);
+                            break;
+                        case "Phone":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerPhone)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerPhone);
+                            break;
+                        case "Email":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerEmail)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerEmail);
+                            break;
+                        case "IMEI":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.DeviceIMEI)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.DeviceIMEI);
+                            break;
+                        case "Serial number":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.DeviceSerialNumber)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.DeviceSerialNumber);
+                            break;
+                        case "Created at":
+                            purchaseFromCustomerList = pfcFilters.isSortAscending
+                                ? purchaseFromCustomerList.OrderBy(dto => dto.Date)
+                                : purchaseFromCustomerList.OrderByDescending(dto => dto.Date);
+                            break;
+                        //case "Updated at":
+                        //    purchaseFromCustomerList = pfcFiltersisSortAscending
+                        //        ? purchaseFromCustomerList.OrderBy(dto => dto.CustomerName)
+                        //        : purchaseFromCustomerList.OrderByDescending(dto => dto.CustomerName);
+                        //    break;
+                        default:
+                            throw new Exception("Invalid Sort By Value");
+                    }
+                }
 
-            var TotalPages = purchaseFromCustomerList.Count;
+                var totalCount = purchaseFromCustomerList.Count();
 
-            purchaseFromCustomerList = purchaseFromCustomerList.Skip(pageNo * 10).Take(10).ToList();
+                // Apply pagination
+                purchaseFromCustomerList = purchaseFromCustomerList.Skip((pageNo - 1) * pfcFilters.pageSize).Take(pfcFilters.pageSize);
 
-            return new PaginationModel
-            {
-                TotalPages = CommonHelper.TotalPagesforPagination(TotalPages, 10),
-                CurrentPage = pageNo,
-                Data = purchaseFromCustomerList
-            };
-        } */
+                return new PaginationModel
+                {
+                    TotalPages = CommonHelper.TotalPagesforPagination(totalCount, pfcFilters.pageSize),
+                    CurrentPage = pageNo,
+                    Data = purchaseFromCustomerList.ToList()
+                };
+            }
+        }
+        
         public int AddPurchaseFromCustomer(AddCustomerInfoDTO customerInfoDTO, AddCustomerIdentitiesDTO customerIdentitiesDTO, AddDeviceInfoDTO deviceInfoDTO)
         {
             var customerInfo = new CustomerInfo
